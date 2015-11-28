@@ -75,9 +75,9 @@ class Case:
         if generation >= constants.generationToImplementSecondChange:
             syllables = constants.manipulateForSecondSoundChange(*syllables)
 
-        self.modWord = (s1 + s2 + s3 + s4 + s5 + s6).replace('-', '')
+        self.modWord = "".join(syllables).replace('-', '')
 
-        self.inputTuple = [item for vector in map(constants.print_phons, syllables) for item in vector]
+        self.inputTuple = tuple([item for vector in map(constants.print_phons, syllables) for item in vector])
 
         self.inputTuple += constants.input_human[self.parentToken.latinGender]
 
@@ -140,8 +140,8 @@ class Corpus:
 class Counter:
     def __init__(self, value, **kwargs):
         self.value = value
-        for key, value in kwargs.iteritems:
-            setattr(self, key, value)
+        # for key, value in kwargs.iteritems:
+        #     setattr(self, key, value)
 
     def increment(self):
         self.value += 1
