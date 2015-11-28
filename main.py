@@ -1,19 +1,16 @@
 import constants
 import objects
 import read_input
-import random
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer                 # For backpropagation training
-from pybrain.structure import FeedForwardNetwork                        # For feedforward network
-from pybrain.structure import LinearLayer, SigmoidLayer                 # For the layers
-from pybrain.structure import FullConnection            # For connections
+# import random
+# from pybrain.structure import FeedForwardNetwork                        # For feedforward network
+# from pybrain.structure import LinearLayer, SigmoidLayer                 # For the layers
+# from pybrain.structure import FullConnection            # For connections
 
 from read_input import convert_to_input
 from smooth import smooth
-from smooth import gendrop_smooth
-from smooth import equalcase_smooth
-from smooth import equalcase_gendrop_smooth
 from decimal import *
 from collections import defaultdict
 import time
@@ -149,12 +146,9 @@ def conductGeneration(generation, corpus, previousOutput, counters):
         
 	for (word, inputTuple, expectedOutput, trueLatinGender, trueRomanianGender) in trainingCorpus.test:
 		counterBag.totalCounter.increment()                     # Count how many tokens are in the test set
-		if generation >= constants.generationToDropGen:
-##                        result = equalcase_gendrop_smooth(tuple(net.activate(inputTuple)))
-                        result = gendrop_smooth(tuple(net.activate(inputTuple)))  
-                else:
-##                        result = equalcase_smooth(tuple(net.activate(inputTuple)))  
-                        result = smooth(tuple(net.activate(inputTuple)))
+		should_drop_gen = generation >= constants.generationToDropGen
+                result = smooth(tuple(net.activate(inputTuple)), gendrop=should_drop_gen)  
+
                 # If generation before genitive drop, remove value representing genitive
 ##                if generation == constants.generationToDropGen -1:
 ##                        result_list = list(result)
