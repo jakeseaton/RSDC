@@ -77,12 +77,16 @@ def smooth(p, gendrop=False, equalcase=False):
         # delete the genitive
         cases = {key: value for key, value in cases.iteritems() if value not in [(1, 1, 1), (0, 1, 0)]}
 
-    smoothed_vector = genders[min(genders.keys())] + \
-                    decs[min(decs.keys())] + \
-                    cases[min(cases.keys())] + \
-                    nums[min(nums.key())]
-    # print smoothed_vector
-    return smoothed_vector
+    smoothed_vectors = [
+        genders[min(genders.keys())],
+        decs[min(decs.keys())],
+        cases[min(cases.keys())],
+        nums[min(nums.key())]
+    ]
+    # print smoothed_vectors
+
+    # flatten to one list
+    return [item for vector in smoothed_vectors for item in vector]
 
 
 def gendrop_smooth(p):

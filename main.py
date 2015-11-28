@@ -23,8 +23,8 @@ counterBag = objects.CounterBag()
 # Dictionary to keep track of which words HAVE changed gender and in what generation
 genchange = defaultdict(list)
 
+
 def conductGeneration(generation, corpus, previousOutput, counters):
-        
         print "Trial %s" % str(constants.trial)
 	# Reset relevant counters
 	counterBag.resetForGeneration()
