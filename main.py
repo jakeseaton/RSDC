@@ -26,150 +26,127 @@ genchange = defaultdict(list)
 
 def conductGeneration(generation, corpus, previousOutput, counters):
         print "Trial %s" % str(constants.trial)
-	# Reset relevant counters
-	counterBag.resetForGeneration()
+        # Reset relevant counters
+        counterBag.resetForGeneration()
 
-	# convert to input (array of tokens)
-	(rawData, counters) = read_input.convert_to_input(constants.FILENAMETOCONVERT)
-	
-	# if we should include slavic data
-	if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic:
-		# build the right size net
-		net = buildNetwork(constants.inputNodesSlav, constants.hiddenNodes, constants.outputNodes)
-		emptyTrainingSet = SupervisedDataSet(constants.inputNodesSlav, constants.outputNodes)
-	else: 
-		net = buildNetwork(constants.inputNodes, constants.hiddenNodes, constants.outputNodes)
-		emptyTrainingSet = SupervisedDataSet(constants.inputNodes, constants.outputNodes)
-##        net = FeedForwardNetwork()                              # Initialize
-##        inLayer1 = LinearLayer(396, name="phonology")           # Phonology input layer
-##        ##inLayer2 = LinearLayer(5, name="case")                # Case information
-##        hidLayer1 = SigmoidLayer(10, name="hidden1")            # Hidden layer for phonology
-##        ##hidLayer2 = SigmoidLayer(8, name="hidden2")           # Hidden layer for morphology
-##        outLayer = LinearLayer(13, name="output")               # Output for gender, declension, number, and case (3+5+2+3)
-##
-##        net.addInputModule(inLayer1)
-##        ##net.addInputModule(inLayer2)
-##        net.addModule(hidLayer1)
-##        ##net.addModule(hidLayer2)
-##        net.addOutputModule(outLayer)
-##
-##        in1_to_hid1 = FullConnection(inLayer1, hidLayer1)
-##        ##in2_to_hid2 = FullConnection(inLayer2, hidLayer2)
-##        ##hid1_to_hid2 = FullConnection(hidLayer1, hidLayer2)
-##        hid2_to_out = FullConnection(hidLayer1, outLayer)               # hidLayer2, outLayer
-##
-##        net.addConnection(in1_to_hid1)
-##        ##net.addConnection(in2_to_hid2)
-##        ##net.addConnection(hid1_to_hid2)
-##        net.addConnection(hid1_to_out)
-##
-##	net.sortModules()
-	
-	# initialize corpus object
-	trainingCorpus = objects.Corpus(emptyTrainingSet)
-	
-	# iterate through tokens
-	for token in corpus:
-		# iterate through cases
-		for (case, word) in token.cases:
+        # convert to input (array of tokens)
+        (rawData, counters) = read_input.convert_to_input(constants.FILENAMETOCONVERT)
+
+        # if we should include slavic data
+        if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic:
+                # build the right size net
+                net = buildNetwork(constants.inputNodesSlav, constants.hiddenNodes, constants.outputNodes)
+                emptyTrainingSet = SupervisedDataSet(constants.inputNodesSlav, constants.outputNodes)
+        else: 
+                net = buildNetwork(constants.inputNodes, constants.hiddenNodes, constants.outputNodes)
+                emptyTrainingSet = SupervisedDataSet(constants.inputNodes, constants.outputNodes)
+
+        # initialize corpus object
+        trainingCorpus = objects.Corpus(emptyTrainingSet)
+
+        # iterate through tokens
+        for token in corpus:
+                # iterate through cases
+                for (case, word) in token.cases:
                         word.setSyllables(generation, word.syllables)
-			# extract the gender from the previous generation
-##			if generation >= constants.generationToDropGen:
-##                                if word.case[0:3] != "gen":
-##                                        (placeholder, previousResult) = previousOutput[[wordinfo for (wordinfo,gender) in previousOutput].index(word.description)]                                        
-##                        else:
-                        (placeholder, previousResult) = previousOutput[[wordinfo for (wordinfo,gender) in previousOutput].index(word.description)]                                
-			# print placeholder # we already know the word
-			# adds words according to their frequencies
-			trainingCorpus.configure(word, previousResult, generation)
+                        # extract the gender from the previous generation
 
-	# construct the training set
-	trainingSet = trainingCorpus.constructTrainingSet()
+                        (placeholder, previousResult) = previousOutput[[wordinfo for (wordinfo, gender) in previousOutput].index(word.description)]                                
+                        # print placeholder # we already know the word
+                        # adds words according to their frequencies
+                        trainingCorpus.configure(word, previousResult, generation)
 
-	# construct the trainer
-	trainer = BackpropTrainer(net, trainingSet)
+        # construct the training set
+        trainingSet = trainingCorpus.constructTrainingSet()
 
-	# train
-	if constants.epochs == 1:
+        # construct the trainer
+        trainer = BackpropTrainer(net, trainingSet)
+
+        # train
+        if constants.epochs == 1:
                 error = trainer.train()
         else:
                 error = trainer.trainEpochs(constants.epochs)
 
-	print "--------Generation: %s--------" % generation
-	if generation >= constants.generationToDropGen:
+        print "--------Generation: %s--------" % generation
+        if generation >= constants.generationToDropGen:
                 print "Genitive Case Dropped"
         if generation == constants.generationToDropGen:
                 counters.adjustGenCount()
-	if constants.generationToImplementMChange <= constants.generationsToImplement:
-                print "Romanian Sound Change To Be Implemented at generations:",str(constants.generationToImplementMChange),str(constants.generationToImplementAEChange),str(constants.generationToImplementSChange),str(constants.generationToImplementSecondChange)
-	if generation >= constants.generationToImplementMChange:
+        if constants.generationToImplementMChange <= constants.generationsToImplement:
+                print "Romanian Sound Change To Be Implemented at generations:", str(constants.generationToImplementMChange), str(constants.generationToImplementAEChange), str(constants.generationToImplementSChange), str(constants.generationToImplementSecondChange)
+        if generation >= constants.generationToImplementMChange:
                 print "Final -m dropped"
-	if generation >= constants.generationToImplementAEChange:
+        if generation >= constants.generationToImplementAEChange:
                 print "Final -ae changed to -e"
         if generation >= constants.generationToImplementSChange:
                 print "Final -s dropped"
         if generation >= constants.generationToImplementSecondChange:
                 print "Final high vowels dropped"
-        if constants.includeSlavic == True and generation >= constants.generationToIntroduceSlavic:
+        if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic:
                 print "Slavic Information Introduced"
         print "Number of Training Epochs: %s" % constants.epochs
         print "Number of Training Tokens: %s" % len(trainingSet)
-##        print "Number of Tokens with Frequency Information: %s" % counters.freqCounter.value
-##        print "Number of Tokens with Slavic Information: %s" % counters.slavinfoCounter.value
+
         print "Number of Tokens with Romanian Information: %s" % counters.rominfoCounter.value
-##        print "Number of Latin Male Tokens: %s" % counters.Latin_M.value
-##        print "Number of Latin Female Tokens: %s" % counters.Latin_F.value
-##        print "Number of Latin Neuter Tokens: %s" % counters.Latin_N.value
-##        print "Number of Romanian Male Tokens: %s" % counters.Romanian_M.value
-##        print "Number of Romanian Female Tokens: %s" % counters.Romanian_F.value
-##        print "Number of Romanian Neuter Tokens: %s" % counters.Romanian_N.value
-##        print "Number of Romanian Male + Singular Neuter Tokens: %s" % (counters.Romanian_M.value+counters.Romanian_NM.value)
-##        print "Number of Romanian Female + Plural Neuter Tokens: %s" % (counters.Romanian_F.value+counters.Romanian_NF.value)
-##        print "Number of Slavic Male Tokens: %s" % counters.Slavic_M.value
-##        print "Number of Slavic Female Tokens: %s" % counters.Slavic_F.value
-##        print "Number of Slavic Neuter Tokens: %s" % counters.Slavic_N.value
-	print "Training Error: %s" % error
-	
-	results = []
+        verbose = False
+        if verbose:
+                pass
+        ##        print "Number of Tokens with Frequency Information: %s" % counters.freqCounter.value
+        ##        print "Number of Tokens with Slavic Information: %s" % counters.slavinfoCounter.value
+        ##        print "Number of Latin Male Tokens: %s" % counters.Latin_M.value
+        ##        print "Number of Latin Female Tokens: %s" % counters.Latin_F.value
+        ##        print "Number of Latin Neuter Tokens: %s" % counters.Latin_N.value
+        ##        print "Number of Romanian Male Tokens: %s" % counters.Romanian_M.value
+        ##        print "Number of Romanian Female Tokens: %s" % counters.Romanian_F.value
+        ##        print "Number of Romanian Neuter Tokens: %s" % counters.Romanian_N.value
+        ##        print "Number of Romanian Male + Singular Neuter Tokens: %s" % (counters.Romanian_M.value+counters.Romanian_NM.value)
+        ##        print "Number of Romanian Female + Plural Neuter Tokens: %s" % (counters.Romanian_F.value+counters.Romanian_NF.value)
+        ##        print "Number of Slavic Male Tokens: %s" % counters.Slavic_M.value
+        ##        print "Number of Slavic Female Tokens: %s" % counters.Slavic_F.value
+        ##        print "Number of Slavic Neuter Tokens: %s" % counters.Slavic_N.value
+
+        print "Training Error: %s" % error
+
+        results = []
 
         # Dictionary of changes
-        changes = {'total':0,
-                'gen_change':defaultdict(lambda:0),
-                'dec_change':defaultdict(lambda:0),
-                'gencase_change':defaultdict(lambda:0),
-                'gennum_change':defaultdict(lambda:0),
-                'deccase_change':defaultdict(lambda:0),
-                'decnum_change':defaultdict(lambda:0),
-                'gencasenum_change':defaultdict(lambda:0),
-                'deccasenum_change':defaultdict(lambda:0)
-                }
-        
-	for (word, inputTuple, expectedOutput, trueLatinGender, trueRomanianGender) in trainingCorpus.test:
-		counterBag.totalCounter.increment()                     # Count how many tokens are in the test set
-		should_drop_gen = generation >= constants.generationToDropGen
+        changes = {
+                'total': 0,
+                'gen_change': defaultdict(lambda: 0),
+                'dec_change': defaultdict(lambda: 0),
+                'gencase_change': defaultdict(lambda: 0),
+                'gennum_change': defaultdict(lambda: 0),
+                'deccase_change': defaultdict(lambda: 0),
+                'decnum_change': defaultdict(lambda: 0),
+                'gencasenum_change': defaultdict(lambda: 0),
+                'deccasenum_change': defaultdict(lambda: 0)
+        }
+
+        for (word, inputTuple, expectedOutput, trueLatinGender, trueRomanianGender) in trainingCorpus.test:
+                counterBag.totalCounter.increment()                     # Count how many tokens are in the test set
+                should_drop_gen = generation >= constants.generationToDropGen
                 result = smooth(tuple(net.activate(inputTuple)), gendrop=should_drop_gen)  
 
-                # If generation before genitive drop, remove value representing genitive
-##                if generation == constants.generationToDropGen -1:
-##                        result_list = list(result)
-##                        del(result_list[9])
-##                        result = tuple(result_list)
-		results.append((word.description, result))
-		if counterBag.generationCounter.value == 1:
-                        genchange[word.description].append((0,word.parentToken.latinGender[0]))
+                results.append((word.description, result))
+                if counterBag.generationCounter.value == 1:
+                        genchange[word.description].append((0, word.parentToken.latinGender[0]))
+
                 # Change index depending if gen has been dropped or not
                 (gen_b, gen_e, dec_b, dec_e, case_b, case_e, num_b, num_e) = (0, 3, 3, 8, 8, 11, 11, 13)
-##                else: (gen_b, gen_e, dec_b, dec_e, case_b, case_e, num_b, num_e) = (0, 3, 3, 8, 8, 10, 10, 12)
-		genchange[word.description].append((counterBag.generationCounter.value,constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]],word.parentToken.latinGender[0],word.parentToken.declension,word.case,word.num))
-		if result == expectedOutput:                            # Count how many tokens match gender in previous gen
-			counterBag.correctPrev.increment()
-		# else write it
-		if result == constants.outputs[trueLatinGender]:         # Count how many tokens match gender in Latin
+
+                # YIKES
+                genchange[word.description].append((counterBag.generationCounter.value, constants.tup_to_gen[result[gen_b: gen_e]] + constants.tup_to_dec[result[dec_b:dec_e]] + constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]],word.parentToken.latinGender[0],word.parentToken.declension,word.case,word.num))
+                
+                if result == expectedOutput:                            # Count how many tokens match gender in previous gen
+                        counterBag.correctPrev.increment()
+                # else write it
+                if result == constants.outputs[trueLatinGender]:         # Count how many tokens match gender in Latin
 ##                        out.write('\t')
-			counterBag.correctLatin.increment()
+                        counterBag.correctLatin.increment()
 ##                        out.write(constants.constants.tup_to_gen[result]+'\t')
-		else:
-                        genchange[word.description].insert(0,True)
+                else:
+                        genchange[word.description].insert(0, True)
 ##                        word.changed = True
 
 ################
@@ -194,7 +171,7 @@ def conductGeneration(generation, corpus, previousOutput, counters):
                 changes['decnum_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.declension+word.num] += 1            # Check how stable declension + number stays
                 changes['gencasenum_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.latinGender[0]+word.case+word.num] += 1 # Check how stable gender + case + number stays
                 changes['deccasenum_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.declension+word.case+word.num] += 1 # Check how stable declension + case + number stays
-	return results
+        return results
 
 ## Main ##
 
@@ -205,16 +182,16 @@ generationOutput = []
 
 # iterate over tokens
 for token in data:
-		# iterate over cases
-		for (case, word) in token.cases:
-			# first train on latin
-			generationOutput.append((word.description, constants.outputs[word.parentToken.latinGender[0]]+constants.outputs[word.parentToken.declension]+constants.outputs[word.case]+constants.outputs[word.num]))
+                # iterate over cases
+                for (case, word) in token.cases:
+                        # first train on latin
+                        generationOutput.append((word.description, constants.outputs[word.parentToken.latinGender[0]]+constants.outputs[word.parentToken.declension]+constants.outputs[word.case]+constants.outputs[word.num]))
                         word.genchange[0] = (word.parentToken.latinGender[0], constants.decnum_to_roman[word.parentToken.declension], word.case, word.num)
 
 ##out.write('\n0\t')
 ##for token in data:
-##		# iterate over cases
-##		for (case, word) in token.cases:
+##              # iterate over cases
+##              for (case, word) in token.cases:
 ##                        # Write the initial gender of each word to be tracked
 ##                        out.write(word.parentToken.latinGender+'\t')
 
@@ -252,8 +229,8 @@ info.write("Number of Slavic Neuter Tokens:\t%s\n\n" % str(counters.Slavic_N.val
 
 while counterBag.generationCounter.value <= constants.generationsToImplement:
 ##        stats.write('\n'+str(constants.trial)+'\t'+str(counterBag.generationCounter.value)+'\t')
-	generationOutput = conductGeneration(counterBag.generationCounter.value, data, generationOutput, counters)
-	counterBag.generationCounter.increment()
+        generationOutput = conductGeneration(counterBag.generationCounter.value, data, generationOutput, counters)
+        counterBag.generationCounter.increment()
 
 
 #### FOR MULTIPLE FILES WITH DIFFERENT STATS
