@@ -1,0 +1,23 @@
+Latin Gender System Change Simulation
+
+Genitive Case dropped at generation	8
+No Romanian Change Implemented
+No Slavic Information Introduced
+Number of Epochs:	3
+Number of Tokens in Total: 	563
+Number of Tokens with Frequency Information:	2466
+Number of Tokens with Slavic Information:	2724
+Number of Tokens with Romanian Information:	2106
+Number of Tokens with All Information:	2106
+Number of Latin Male Tokens:	1098
+Number of Latin Female Tokens:	1080
+Number of Latin Neuter Tokens:	546
+Number of Romanian Male Tokens:	444
+Number of Romanian Female Tokens:	1002
+Number of Romanian Neuter Tokens:	660
+Number of Romanian Male + Singular Neuter Tokens:	774
+Number of Romanian Female + Plural Neuter Tokens:	1332
+Number of Slavic Male Tokens:	1428
+Number of Slavic Female Tokens:	936
+Number of Slavic Neuter Tokens:	360
+
