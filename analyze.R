@@ -128,16 +128,17 @@ colnames(df_percents) <- colnames(df_totalcounts)
 
 df_percents$Trial <- as.factor(df_percents$Trial)
 
-plot_var <- "NPLGEN to M"
+# plot_var <- "IIGENSG to IINOMPL"
+plot_var <- "NSG to MSG"
 
-ggplot(df_percents, aes(x=Generation, y=ngenplTOm))+
+ggplot(df_percents, aes(x=Generation, y=nsgTOmsg))+
   geom_line(aes(color=Trial))+
   scale_x_discrete(breaks = seq(from=1, to=max(df_percents$Generation), by=1))+
   scale_y_continuous(limits=c(0,1))+
   xlab("Generation") + ylab(paste("% of", plot_var))+
-  theme(axis.text=element_text(size=20),
-        axis.title=element_text(size=20),
-        plot.title=element_text(size=30),
+  theme(axis.text=element_text(size=30),
+        axis.title=element_text(size=40),
+        plot.title=element_text(size=50),
         legend.position="none")+
   ggtitle(plot_var)
     # legend.direction="horizontal",
@@ -184,24 +185,78 @@ proptrials0 <- proptrials[proptrials != 0]
 
 as.data.frame(proptrials0)
 
-par(mar=c(8,4,2,3))
-# barplot(sort(proptrials0, decreasing = TRUE), las = 2)
-
 df_proptrials <- data.frame(cases = names(proptrials0),
                             prop = as.numeric(proptrials0))
 
-# df_proptrials_cut <- df_proptrials[with(df_proptrials, order(-prop)), ]
-
 ggplot(data = df_proptrials, aes(x = reorder(cases, -prop), y = prop)) +
-# ggplot(data = df_proptrials_cut[1:13,], aes(x = reorder(cases, -prop), y = prop)) +
   xlab("Form")+ylab("Proportion of Trials")+
-  ggtitle("Forms Remaining at End of Simulation (w/o Case Hierarchy)")+
+  ggtitle("Forms Remaining at End of Simulation (w/ Hierarchy)")+
   geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=10),
-        axis.text.y = element_text(size=25),
-        axis.title = element_text(size=30),
-        plot.title = element_text(size=25))
+  scale_y_continuous(breaks=seq(0,1,.1))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=20),
+        axis.text.y = element_text(size=30),
+        axis.title = element_text(size=35, vjust=1),
+        plot.title = element_text(size=30))
 
-# req_trial <- 6
-# 
-# bar_analyze <- barplot(sort(df_analyze[[req_trial]][which(df_analyze[[req_trial]] != 0)], decreasing = FALSE),  names.arg = rownames(df_analyze)[which(df_analyze[[req_trial]] != 0)], horiz = TRUE, las=2, xlim=c(0,1), xlab="%", main = paste("% of each form in the final Generation in Trial", as.character(req_trial)))
+#########
+#########
+#########
+
+# With forms remaining at end, generate stacked barplots representing proportion of each 
+# First create the file with the end percents
+# For gender
+gender <- df_end$endpercents[c('n','m','f'), ] # Rows with gender
+gender <- as.data.frame(t(gender)) # Transpose
+gender <- gender[order(gender$n, -gender$f), ] # Order
+gender$trial <- rownames(gender) # Now the trial numbers
+gender$order <- 1:nrow(gender) # Set the correct order
+
+# Melt for ggplot2
+gender_melt <- melt(gender, id.vars = c('trial', 'order'), variable.name = 'feature', value.name = 'percent')
+
+# Make a stacked barplot
+ggplot(data = gender_melt, aes(x=order, y=percent, fill=feature))+
+  geom_bar(stat="identity")+
+  xlab("Trial")+ylab("Percentage")+
+  scale_y_continuous(breaks=seq(0,1,.1))+
+  theme(axis.text.x=element_blank(),
+        axis.text.y = element_text(size=30),
+        axis.title = element_text(size=35, vjust=1),
+        plot.title = element_text(size=35),
+        legend.title = element_text(size=30),
+        legend.text = element_text(size=30),
+        legend.position = "top")+
+  scale_fill_manual(values=wesanderson::wes_palette(name="FantasticFox"),
+                    guide = guide_legend(title="Gender:"))+
+  ggtitle("Distribution of Genders by End of Simulation")
+
+# For case
+if (gen_drop == TRUE) {
+  case <- df_end$endpercents[c('acc','nom'), ] # Rows with gender
+  case <- as.data.frame(t(case)) # Transpose
+  case <- case[order(case$acc, -case$nom), ] # Order
+}else{
+    case <- df_end$endpercents[c('acc','nom', 'gen'), ] # Rows with gender
+    case <- as.data.frame(t(case)) # Transpose
+    case <- case[order(case$acc, -case$gen), ] # Order
+  }
+case$trial <- rownames(case) # Now the trial numbers
+case$order <- 1:nrow(case)
+# Melt for ggplot2
+case_melt <- melt(case, id.vars = c('trial', 'order'), variable.name = 'feature', value.name = 'percent')
+
+# Stacked barplot for case
+ggplot(data = case_melt, aes(x=order, y=percent, fill=feature, order=feature))+
+geom_bar(stat="identity")+
+  xlab("Trial")+ylab("Percentage")+
+  scale_y_continuous(breaks=seq(0,1,.1))+
+  theme(axis.text.x=element_blank(),
+        axis.text.y = element_text(size=30),
+        axis.title = element_text(size=35, vjust=1),
+        plot.title = element_text(size=35),
+        legend.title = element_text(size=30),
+        legend.text = element_text(size=30),
+        legend.position = "top")+
+  scale_fill_manual(values=wesanderson::wes_palette(name="FantasticFox"),
+                    guide = guide_legend(title="Case:"))+
+  ggtitle("Distribution of Cases by End of Simulation")
