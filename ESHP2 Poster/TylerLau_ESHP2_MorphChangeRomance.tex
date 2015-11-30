@@ -9,7 +9,7 @@
 % 
 % Further modified by:
 % Nathaniel Johnston (nathaniel@njohnston.ca)
-%
+%	
 % This template has been downloaded from:
 % http://www.LaTeXTemplates.com
 %
@@ -28,10 +28,23 @@
 
 \usetheme{confposter} % Use the confposter theme supplied with this template
 
-\setbeamercolor{block title}{fg=ngreen,bg=white} % Colors of the block titles
+
+\definecolor{xmasmaingreen}{HTML}{2E8739}
+\definecolor{xmasdarkgreen}{HTML}{003907}
+\definecolor{xmasmidgreen}{HTML}{086113}
+\definecolor{xmaslightgreen}{HTML}{6AAF73}
+\definecolor{xmaslightgreen2}{HTML}{B7D2BA}
+
+\definecolor{xmasmainred}{HTML}{AE413B}
+\definecolor{xmasdarkred}{HTML}{490400}
+\definecolor{xmasmidred}{HTML}{7D100A}
+\definecolor{xmaslightred}{HTML}{E18E89}
+\definecolor{xmaslightred2}{HTML}{FFDFDE}
+
+\setbeamercolor{block title}{fg=xmasmaingreen,bg=white} % Colors of the block titles
 \setbeamercolor{block body}{fg=black,bg=white} % Colors of the body of blocks
-\setbeamercolor{block alerted title}{fg=white,bg=dblue!70} % Colors of the highlighted block titles
-\setbeamercolor{block alerted body}{fg=black,bg=dblue!10} % Colors of the body of highlighted blocks
+\setbeamercolor{block alerted title}{fg=white,bg=xmasmidgreen!70} % Colors of the highlighted block titles
+\setbeamercolor{block alerted body}{fg=black,bg=xmaslightgreen2!20} % Colors of the body of highlighted blocks
 % Many more colors are available for use in beamerthemeconfposter.sty
 
 %-----------------------------------------------------------
@@ -60,11 +73,13 @@
 \usetikzlibrary{shapes,snakes,arrows}				% Tikz shapes
 \usepackage{booktabs} % Top and bottom rules for tables
 
-\tikzstyle{block} = [draw, rectangle, minimum width = 0.75cm, minimum height = 0.75cm]
-\tikzstyle{dot} = [draw, circle, minimum size=.5cm, node distance=1.75cm]
-
 \newcommand{\bit}[0]{\begin{itemize}}
 \newcommand{\eit}[0]{\end{itemize}}
+
+\newcommand*{\xMin}{0}%
+\newcommand*{\xMax}{6}%
+\newcommand*{\yMin}{0}%
+\newcommand*{\yMax}{6}%
 
 \makeatletter							%This allows for a thicker hline in tabular
 \newcommand{\thickhline}{%
@@ -88,11 +103,11 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 
 \begin{document}
 
-\addtobeamertemplate{block end}{}{\vspace*{2ex}} % White space under blocks
-\addtobeamertemplate{block alerted end}{}{\vspace*{2ex}} % White space under highlighted (alert) blocks
+\addtobeamertemplate{block end}{}{\vspace*{0ex}} % White space under blocks
+\addtobeamertemplate{block alerted end}{}{\vspace*{0ex}} % White space under highlighted (alert) blocks
 
-\setlength{\belowcaptionskip}{2ex} % White space under figures
-\setlength\belowdisplayshortskip{2ex} % White space under equations
+\setlength{\belowcaptionskip}{0ex} % White space under figures
+\setlength\belowdisplayshortskip{0ex} % White space under equations
 
 \begin{frame}[t] % The whole poster is enclosed in one beamer frame
 
@@ -116,7 +131,7 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 \textbf{Background:}
 \bit
 %	\item Paradigm leveling and analogical extension have been extensively described in the literature (CITE)
-	\item Analogy driven by factors such as \textit{frequency}, \textit{markedness}, \textit{morpheme length}, etc. (Kurylowicz 1947, Manczak 1958, Bybee 1985, Hock 1991, Albright 2008)
+	\item Analogy driven by factors such as \textit{frequency}, \textit{markedness}, and \textit{morpheme length}. (Kurylowicz 1947, Bybee 1985, Albright 2008)
 	\item From Latin to Romance
 	\bit
 		\item Declension: 5 $>$ 3$\sim$2 (I, II, (III)): frequency, sound change
@@ -125,8 +140,8 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 	\eit
 	\item Fate of the Neuter
 	\bit
-		\item N.SG ended in same endings as M.SG so many became M
-		\item N.PL ended in {\sl -a} and as plural inanimates were seen as collectives, reinterpreted as F.SG: ex. Lat. \textit{folia} `leaves N.PL' $>$ Sp. \textit{hoja} `leaf F.SG' (Herman 1967)
+		\item N.SG had same endings as M.SG so many became M
+		\item N.PL ended in \textit{-a} and as plural inanimates were seen as collectives, reinterpreted as F.SG: ex. Lat. \textit{folia} `leaves N.PL' $>$ Sp. \textit{hoja} `leaf F.SG' (Herman 1967)
 		\item Romanian has an ambigeneric system
 		\bit
 			\item ``Neuter'' class takes M morphology in singular and F in plural
@@ -134,17 +149,8 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 			\item Many M's migrate to N class via analogy (Lat. \textit{campus} $\sim$ \textit{campi} `field M' $>$ Rom. \textit{c\^imp} (M.SG) $\sim$ \textit{c\^impuri} (F.PL) , likely via \textit{tempus} $\sim$ \textit{tempora} `time N')
 		\eit
 	\eit
-%	\item (CITE ALBRIGHT 2002) provides a {\sl deterministic} model of analogy in which a {\sl base form} is determined via a confidence measure arrived at via informativeness (how much of the remainder of a paradigm can be arrived at given a form's information) and frequency
 \eit
 \textbf{Objective:} To use a connectionist simulation of generational learning providing minimal phonological and semantic information and see whether the changes that are actually attested in Romance can be reproduced
-
-% TO DO:
-%	Figure out what forms end up being preserved
-%	Figure out whether the nouns that migrated are the right ones
-%	This predicts forms, but not necessarily *meaning*
-%	Change neural net so that GEN node is gone after 
-
-% (DISCUSSION SECTION: works well with Albright's model suggesting that frequency plays a large role, also works well in suggesting that synchronic effects lead to diachronic effects)
 
 \end{alertblock}
 
@@ -154,7 +160,7 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 
 \begin{block}{Latin Declension System}
 
-\begin{figure}[h]
+\begin{figure}[height=.5\textheight]
 	\footnotesize
 	\begin{tabular}{ll| llllll}
 				&	&	I		&	II		&	IIIa		&	IIIb		&	IV		&	V	\\ \thickhline
@@ -199,12 +205,7 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 \begin{block}{Structure of the Connectionist Model}
 
 \begin{figure}[t]
-\footnotesize
-\begin{tikzpicture}
-	\draw [help lines] (0,0) grid (5,5);
-	\node[draw, align=center] (hidden)	[block] {\textbf{Hidden Layer (30 nodes)}};
-	\node[draw, align=center] (-5,0)		[block] {Pre-Input};
-\end{tikzpicture}
+	\includegraphics[trim=0 140 0 0, clip, width=1\textwidth]{diagrams.pdf}
 \end{figure}
 
 %\begin{columns}[t,totalwidth=\twocolwid] % Split up the two columns wide column
@@ -238,17 +239,17 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 \begin{block}{Results}
 
 \begin{columns}[t]
-      \begin{column}{.33\linewidth}
- \footnotesize
-\begin{figure}
-\begin{center} 
-\vspace{2cm}
-{\centering \includegraphics[width=1\textwidth]{npltofsg.pdf}}
-\end{center}
-\caption{\textit{With the genitive dropped, neuter plurals almost consistently migrate to the feminine singular class due to phonological similarity alone--while collective semantics can be invoked, they are not absolutely necessary to account for the facts.}}
-\end{figure}    
-      
-      \end{column}
+%      \begin{column}{.33\linewidth}
+% \footnotesize
+%\begin{figure}
+%\begin{center} 
+%\vspace{2cm}
+%{\centering \includegraphics[width=1\textwidth]{npltofsg.pdf}}
+%\end{center}
+%\caption{\textit{With the genitive dropped, neuter plurals almost consistently migrate to the feminine singular class due to phonological similarity alone--while collective semantics can be invoked, they are not absolutely necessary to account for the facts.}}
+%\end{figure}    
+%      
+%      \end{column}
       
             \begin{column}{.33\linewidth}
             
@@ -258,47 +259,49 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 {\centering \includegraphics[width=1\textwidth]{nsgtomsg.pdf}}
 \end{center}
 \footnotesize
-\caption{\textit{With the genitive dropped, neuter singulars undergo a bifurcation--they either merge almost completely with masculines or stay very much neuter while drawing masculines to their class (see Figure \ref{gendist}).}}
+\caption{\textit{With genitive drop, neuter singulars bifurcate--they either merge with masculines or drawing masculines to their class. The neuter plurals are drawn to the feminine singular class (as occurred in most Romance languages), but in a few trials merge with feminine plurals (as occurred in Romanian). Thus, the collapse of the neuter in most Romance languages and its bifurcation into an ambigeneric class in Romanian can be accounted for internally without appealing to contact effects.}}
+
+%(see Figure \ref{gendist})
 \end{figure}     
             
       \end{column}      
-       \begin{column}{.33\linewidth}
-\footnotesize
-\begin{figure}
-\begin{center} 
-\vspace{2cm}
-{\centering \includegraphics[width=1\textwidth]{ngenpltom.pdf}}
-\end{center}
-\caption{\textit{Without the genitive dropped, the genitive plurals are largely drawn to the masculine, as they do {\sl not} end in {\sl -a}. This prevents the neuter plurals from migrating almost categorically to F.SG.}}
-\end{figure}           
+%       \begin{column}{.33\linewidth}
+%\footnotesize
+%\begin{figure}
+%\begin{center} 
+%\vspace{2cm}
+%{\centering \includegraphics[width=1\textwidth]{ngenpltom.pdf}}
+%\end{center}
+%\caption{\textit{Without the genitive dropped, the genitive plurals are largely drawn to the masculine, as they do {\sl not} end in {\sl -a}. This prevents the neuter plurals from migrating almost categorically to F.SG.}}
+%\end{figure}           
        
-      \end{column}    
-    \end{columns}
-    
-\begin{columns}[t]
+%      \end{column}    
+%    \end{columns}
+%    
+%\begin{columns}[t]
     \begin{column}{.33\linewidth}
     \begin{figure}
     \begin{center} 
 	\vspace{2cm}
-	{\centering \includegraphics[width=1\textwidth]{endforms_hierarchy.pdf}}
+	{\centering \includegraphics[height=.2\textheight]{endforms_hierarchy.pdf}}
 	 \footnotesize
-	\caption{\textit{With case hierarchy in play, the accusative is very robust, the genitive singular falls out completely, and the genitive plural survives in few cases. The most robust forms accord with history.}}
+	\caption{\textit{With case hierarchy in play, the accusative is very robust, the genitive singular falls out completely, and the genitive plural survives in few cases. Without it, the genitive (both singular and plural) survive to a greater extent. The most robust forms are indeed widespread throughout Romance, including the well-known masculine -o, feminine -a, indeterminate -e/-$\varnothing$, and plural -s endings.}}
 	\end{center}
 	\end{figure}
     \end{column}
     
-      \begin{column}{.33\linewidth}
-      
-      \begin{figure}
-    \begin{center} 
-	\vspace{2cm}
-	{\centering \includegraphics[width=1\textwidth]{genderdistribution.pdf}}
-	\end{center}
-	 \footnotesize
-	\caption{\textit{In most of the trials, the neuter survives in at most a few words (this occurs in Italian, for example (\textit{dito} M.SG $\sim$ \textit{dita} F.PL `finger'). In the cases where it is more robust, M nouns migrate to the N class, as happened in Romanian.}}
-	\label{gendist}
-	\end{figure}
-    \end{column}
+%      \begin{column}{.33\linewidth}
+%      
+%      \begin{figure}
+%    \begin{center} 
+%	\vspace{2cm}
+%	{\centering \includegraphics[width=1\textwidth]{genderdistribution.pdf}}
+%	\end{center}
+%	 \footnotesize
+%	\caption{\textit{In most of the trials, the neuter survives in at most a few words (this occurs in Italian, for example (\textit{dito} M.SG $\sim$ \textit{dita} F.PL `finger'). In the cases where it is more robust, M nouns migrate to the N class, as happened in Romanian.}}
+%	\label{gendist}
+%	\end{figure}
+%    \end{column}
  
       \begin{column}{.33\linewidth}
  	
@@ -308,10 +311,10 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 	{\centering \includegraphics[width=1\textwidth]{casedistribution.pdf}}
 	\end{center}
 	 \footnotesize
-	\caption{\textit{With case hierarchy in play, the accusative becomes the dominant case in almost every simulation and the only case in almost half. The genitive survives in hardly more than 10\% of trials}}
+	\caption{\textit{With case hierarchy taken into consideration, the accusative becomes the dominant case in almost every simulation and the only case in almost half of them. The genitive survives in hardly more than 10\% of trials (whereas without case hierarchy, the genitive remains in over 50\% of trials)--thus, genitive drop may be predicted merely from phonology and semantics.}}
 	\end{figure}
-	
     \end{column}
+    
 \end{columns}
 
 \end{block}
@@ -354,12 +357,12 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 			\item \textit{-\=as} F.PL ending in western Romance, maybe $>$ \textit{-e} in eastern
 			\item M/F.NOM.SG \textit{-us} \& \textit{-as}: in E-Romance., final \textit{-s} falls out; in W-Romance, \textsc{nom} persists in older Sp. \& Fr.
 		\eit
-		\item Case system converges to accusative in almost half (as in western Romance), eastern Romance shows alternate history where nominative plural may have survived (see D'hulst (2005) on Romance plurals)
+		\item Case system converges to accusative in almost half (as in western Romance), eastern Romance shows alternate history where nominative plural may have survived (see D'hulst (2006) on Romance plurals)
 		\item Neuter rarely survives--when it stays, a sizeable chunk of the masculine class migrates over (as in Romanian)
 	\eit
 	\item With \textit{genitive} dropped, N.SG $>$ M.SG, N.PL $>$ F.SG
 	\bit
-		\item Otherwise, N.PL \textsc{gen} $>$ M.PL because of phonology
+		\item Otherwise, N.PL.GEN $>$ M.PL because of phonology
 		\item Supports popularity of periphrastic construction view
 	\eit
 \eit
@@ -370,19 +373,19 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 %	REFERENCES
 %----------------------------------------------------------------------------------------
 
-%\begin{block}{References}
-%
-%%\nocite{*} % Insert publications even if they are not cited in the poster
-%\small{\bibliographystyle{li}
-%\bibliography{tyler}\vspace{0.75in}}
-%
-%\end{block}
+\begin{block}{References}
+
+\tiny
+Albright, A. 2008. Explaining Universal Tendencies and Language Particulars in Analogical Change. In \textit{Linguistics Universals and Language Change}, 144-181. Bybee, J. 1985. \textit{Morphology: A Study of the Relation between Meaning and Form}. D'hulst, Y. 2006. Romance Plurals. \textit{Lingua} 116, 1303-1329. \break Goldsmith, J. \& O'Brien, J. 1995. Grammar within a Neural Net. In \textit{The Reality of Linguistic Rules}, 95-113. \break Herman, J. 1967. \textit{Le Latin Vulgaire}. \break Kury\l owicz, J. 1947. The Nature of the so-called Analogical Processes. \textit{Diachronica} 12 (1), 113-145. 
+
+
+\end{block}
 
 %----------------------------------------------------------------------------------------
 %	ACKNOWLEDGEMENTS
 %----------------------------------------------------------------------------------------
 
-\setbeamercolor{block title}{fg=red,bg=white} % Change the block title color
+\setbeamercolor{block title}{fg=xmasmainred,bg=white} % Change the block title color
 
 \begin{block}{Acknowledgements}
 
@@ -396,8 +399,8 @@ $^\dagger$Deparment of Linguistics, Harvard University, USA} % Institution(s)
 %	CONTACT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\setbeamercolor{block alerted title}{fg=black,bg=norange} % Change the alert block title colors
-\setbeamercolor{block alerted body}{fg=black,bg=white} % Change the alert block body colors
+\setbeamercolor{block alerted title}{fg=white,bg=xmasmidred} % Change the alert block title colors
+\setbeamercolor{block alerted body}{fg=black,bg=xmaslightred} % Change the alert block body colors
 
 \begin{alertblock}{Contact Information}
 
