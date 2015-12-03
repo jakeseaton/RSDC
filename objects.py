@@ -14,7 +14,8 @@ import random
 ###
 class Token:
     def __init__(self, *args, **kwargs):
-        setattr(self, kwargs)
+        for key, value in kwargs.iteritems():
+            setattr(self, key, value)
 
         self.cases = []
 
@@ -37,6 +38,86 @@ class Token:
 
     def almostComplete(self):
         return self.haveSlavicGender and self.haveLatinGender
+
+    def updateCounters(self, case, counters):
+        # Increment counters for Latin gender, Slavic gender, and Romanian gender
+        if self.logMax != '?': 
+                counters.freqCounter.increment()
+
+        if self.romanianGender != '?':
+                counters.rominfoCounter.increment()
+                if self.romanianGender[0] == 'm': 
+                        counters.Romanian_M.increment()
+                elif self.romanianGender[0] == 'f': 
+                        counters.Romanian_F.increment()
+                elif self.romanianGender[0] == 'n':
+                        counters.Romanian_N.increment()
+                        # Split neuter (add to Romanian M and F count later)
+                        if case[-2:] == 'sg': 
+                                counters.Romanian_NM.increment()
+                        elif case[-2:] == 'pl': 
+                                counters.Romanian_NF.increment()
+        
+        if self.slavicGender != '?':
+            counters.slavinfoCounter.increment()
+            cmd = 'counters.Slavic_%s.increment()' % self.slavicGender[0].capitalize()
+            exec(cmd)
+
+        if self.latinGender[0] == 'm':
+            counters.Latin_M.increment()
+            if 'sg' in case:
+                    counters.MSG.increment()
+                    if 'nom' in case:
+                            counters.MSGNOM.increment()
+                    if 'acc' in case:
+                            counters.MSGACC.increment()
+                    if 'gen' in case:
+                            counters.MSGGEN.increment()
+            else:   # plural
+                    counters.MPL.increment()
+                    if 'nom' in case:
+                            counters.MPLNOM.increment()
+                    if 'acc' in case:
+                            counters.MPLACC.increment()
+                    if 'gen' in case:
+                            counters.MPLGEN.increment()                                                                                              
+        elif self.latinGender[0] == 'f':
+            counters.Latin_F.increment()
+            if 'sg' in case:
+                    counters.FSG.increment()
+                    if 'nom' in case:
+                            counters.FSGNOM.increment()
+                    if 'acc' in case:
+                            counters.FSGACC.increment()
+                    if 'gen' in case:
+                            counters.FSGGEN.increment()
+            else:   # plural
+                    counters.FPL.increment()
+                    if 'nom' in case:
+                            counters.FPLNOM.increment()
+                    if 'acc' in case:
+                            counters.FPLACC.increment()
+                    if 'gen' in case:
+                            counters.FPLGEN.increment() 
+
+        elif self.latinGender[0] == 'n': #probably else but just in case
+            counters.Latin_N.increment()
+            if 'sg' in case:
+                    counters.NSG.increment()
+                    if 'nom' in case:       
+                            counters.NSGNOM.increment()
+                    if 'acc' in case:
+                            counters.NSGACC.increment()
+                    if 'gen' in case:
+                            counters.NSGGEN.increment()
+            else:   # plural
+                    counters.NPL.increment()
+                    if 'nom' in case:
+                            counters.NPLNOM.increment()
+                    if 'acc' in case:
+                            counters.NPLACC.increment()
+                    if 'gen' in case:
+                            counters.NPLGEN.increment() 
 
 
 ###
