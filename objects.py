@@ -158,6 +158,8 @@ class Case:
 
         self.modWord = "".join(syllables).replace('-', '')
 
+        # print map(constants.print_phons, syllables)
+        # print [item for vector in map(constants.print_phons, syllables) for item in vector]
         self.inputTuple = tuple([item for vector in map(constants.print_phons, syllables) for item in vector])
 
         self.inputTuple += constants.input_human[self.parentToken.latinGender]
@@ -171,12 +173,12 @@ class Case:
         if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic:
             if len(self.inputTuple) != constants.inputNodesSlav:
                 print "You screwed up the size of the input"
-                print len(self.inputTuple), inputNodesSlav
+                print len(self.inputTuple), constants.inputNodesSlav
                 raise SystemExit
         else:
             if len(self.inputTuple) != constants.inputNodes:
                 print "You screwed up the size of the input"
-                print len(self.inputTuple), inputNodes
+                print len(self.inputTuple), constants.inputNodes
                 raise SystemExit
 
 

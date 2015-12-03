@@ -269,7 +269,11 @@ phonemes = {
 
 
 def print_phons_pretty(*args):
-    return tuple([phonemes[arg] for arg in args])
+    # lookup
+    result = [phonemes[arg] for arg in args]
+
+    # flatten
+    return tuple([item for vector in result for item in vector])
 
 
 # turn a syllable into its phonemic representation
