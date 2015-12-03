@@ -1,6 +1,7 @@
 import objects
+import constants
 
-
+rows_variables = ['word', 'latinGender', 'maxFrequency', 'max10k', 'logMax', 'slavicGender', 'romanianGender', 'declension']
 def convert_to_input(file1):
         # aray of token objects
         result = []
@@ -9,18 +10,21 @@ def convert_to_input(file1):
         counters = objects.CounterBag()
 
         reader = open(file1, 'rU')
+
         for row in reader.readlines():
+                # If this is the start of a new word
                 if row[0] == "_":
                         # increment counters
                         counters.tokensCounter.increment()
 
                         # uncomment with new latin corpus
-                        [word, latinGender, maxFrequency, max10k, logMax, slavicGender, romanianGender, dec] = row.strip('\n').split("\t")[1:]
+                        row_arr = row.strip('\n').split("\t")[1:]
 
-                        #[word, latinGender, maxFrequency, max10k, logMax, slavicGender, romanianGender] = row.split("\t")[1:]
-                        # = [x for x in [split for split in row.split("\t")] if x != ""][1:]
-                        currentToken = objects.Token(word, latinGender, maxFrequency, max10k, logMax, slavicGender, romanianGender, dec)
-                        if latinGender[-1] == 'h':
+                        row_dict = {constants.row_order[i]: value for i, value in enumerate(row_arr)}
+
+                        currentToken = objects.Token(**row_dict)
+
+                        if row_dict['latinGender'][-1] == 'h':
                                 currentToken.human = True
 
                         # only return a token if we have all necessary info.

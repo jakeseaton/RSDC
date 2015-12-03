@@ -49,8 +49,8 @@ def conductGeneration(generation, corpus, previousOutput, counters):
                 # iterate through cases
                 for (case, word) in token.cases:
                         word.setSyllables(generation, word.syllables)
-                        # extract the gender from the previous generation
 
+                        # extract the gender from the previous generation
                         (placeholder, previousResult) = previousOutput[[wordinfo for (wordinfo, gender) in previousOutput].index(word.description)]                                
                         # print placeholder # we already know the word
                         # adds words according to their frequencies
@@ -137,12 +137,13 @@ def conductGeneration(generation, corpus, previousOutput, counters):
 
                 # YIKES
                 genchange[word.description].append((counterBag.generationCounter.value, constants.tup_to_gen[result[gen_b: gen_e]] + constants.tup_to_dec[result[dec_b:dec_e]] + constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]],word.parentToken.latinGender[0],word.parentToken.declension,word.case,word.num))
-                
-                if result == expectedOutput:                            # Count how many tokens match gender in previous gen
+
+                if result == expectedOutput:                           
+                        # Count how many tokens match gender in previous gen
                         counterBag.correctPrev.increment()
                 # else write it
-                if result == constants.outputs[trueLatinGender]:         # Count how many tokens match gender in Latin
-##                        out.write('\t')
+                if result == constants.outputs[trueLatinGender]:
+                        # Count how many tokens match gender in Latin
                         counterBag.correctLatin.increment()
 ##                        out.write(constants.constants.tup_to_gen[result]+'\t')
                 else:
@@ -196,19 +197,25 @@ for token in data:
 ##                        out.write(word.parentToken.latinGender+'\t')
 
 # Set up table for tracking stats across generations
-info = open(constants.out_files['out2'],'w')
+info = open(constants.out_files['out2'], 'w')
 info.write('Latin Gender System Change Simulation\n\n')
+
 if constants.generationToDropGen < constants.generationsToImplement:
         info.write('Genitive Case dropped at generation\t%s\n' % str(constants.generationToDropGen))
+
 if constants.generationToImplementMChange < constants.generationsToImplement:
         info.write('First Romanian Change (final m to zero) implemented at generation\t%s\n' % str(constants.generationToImplementMChange))
         info.write('Second Romanian Change (final ae to e) implemented at generation\t%s\n' % str(constants.generationToImplementAEChange))
         info.write('Third Romanian Change (final s to zero) implemented at generation\t%s\n' % str(constants.generationToImplementSChange))
         info.write('Fourth Romanian Change (syncope of final high vowels) implemented at generation\t%s\n' % str(constants.generationToImplementSecondChange))
-else: info.write('No Romanian Change Implemented\n')
+else: 
+        info.write('No Romanian Change Implemented\n')
+
 if constants.SLAVICINFO:
         info.write('Slavic Information Introduced at generation\t%s\n' % str(constants.generationToIntroduceSlavic))
-else: info.write('No Slavic Information Introduced\n')
+else: 
+        info.write('No Slavic Information Introduced\n')
+
 info.write('Number of Epochs:\t%s\n' % str(constants.epochs))
 info.write('Number of Tokens in Total: \t%s\n' % str(counters.tokensCounter.value))
 info.write("Number of Tokens with Frequency Information:\t%s\n" % str(counters.freqCounter.value))
@@ -245,7 +252,7 @@ while counterBag.generationCounter.value <= constants.generationsToImplement:
 ##stats4.write('Trial\tDeclinedNoun')
 
 ## FOR ONE FILE WITH ALL STATS
-stats = open(constants.out_files['out7'],'w')
+stats = open(constants.out_files['out7'], 'w')
 stats.write('Declined Noun')
 for generation in range(0, constants.generationsToImplement+1):
         stats.write('\t'+str(generation))

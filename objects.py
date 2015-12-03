@@ -14,7 +14,7 @@ import random
 ###
 class Token:
     def __init__(self, *args, **kwargs):
-        [self.word, self.latinGender, self.maxFrequency, self.max10k, self.logMax, self.slavicGender, self.romanianGender, self.declension] = args
+        setattr(self, kwargs)
 
         self.cases = []
 
