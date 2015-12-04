@@ -2,7 +2,18 @@ import numpy
 
 ### GLOBAL VARIABLES ###
 
-row_order = ["word", "latinGender", "maxFrequency", "max10k", "logMax", "slavicGender", "romanianGender", "declension"]
+# The ordering of data in the input. Will then be set of properties of Token objects
+row_order = [
+    "word", 
+    "latinGender", 
+    "maxFrequency", 
+    "max10k", 
+    "logMax", 
+    "slavicGender", 
+    "romanianGender", 
+    "declension"
+]
+
 
 # This variable tells us whether to introduce Slavic information or not
 SLAVICINFO = False
@@ -14,18 +25,6 @@ declension_file = "declensions.txt"
 
 # 48 to show time between 400AD and 1600AD (25 years to a generation)
 generationsToImplement = 15                            
-
-# 2 to show early loss
-generationToImplementMChange = 31                       
-
-# 6 to show between 2nd and 3rd century (dropped 2nd-3rd century)
-generationToImplementSChange = 31                       
-
-# 8 to show latter part of 300AD (standard in latter part of 2nd century and before 4th)
-generationToImplementAEChange = 31                      
-
-# 15 to show halfway point (idealized)
-generationToImplementSecondChange = 31                  
 
 # 18 (--> 34) to show Slavs coming in approximately 850AD
 generationToIntroduceSlavic = 18                        
@@ -43,7 +42,12 @@ hiddenNodes = 30
 hiddenNodes2 = 8                                        
 
 # Gender (3), Declension (5), Case (3), Number (2)
-outputNodes = 13                                        
+gender_dimension = 3
+declension_dimension = 5
+case_dimension = 3
+number_dimension = 2
+
+outputNodes = sum([gender_dimension, declension_dimension, case_dimension, number_dimension])                                        
 
 # Trial number
 trial = 16                                               
@@ -61,28 +65,13 @@ out_files = [
 
 out_files = {'out' + str(i + 1): name + str(generationsToImplement) for i, name in enumerate(out_files)}
 
-# Replaced with more pythonic version above
-# out_files = {'out1':'trackchange_Gens'+str(generationsToImplement),
-#              'out2':'info_Gens'+str(generationsToImplement),
-#              'out3':'genstats_Gens'+str(generationsToImplement),
-#              'out4':'decstats_Gens'+str(generationsToImplement),
-#              'out5':'casestats_Gens'+str(generationsToImplement),
-#              'out6':'numstats_Gens'+str(generationsToImplement),
-#              'out7':'stats_Gens'+str(generationsToImplement)}
-
 for key in out_files.keys():
+
     if generationToDropGen <= generationsToImplement:
         out_files[key] += '_GnvT'+str(generationToDropGen)
     else:
         out_files[key] += '_GnvF'
-    if generationToImplementMChange <= generationsToImplement:
-        out_files[key] += '_RomT'+str(generationToImplementMChange)+'_'+str(generationToImplementSChange)+'_'+str(generationToImplementAEChange)+'_'+str(generationToImplementSecondChange)
-    else:
-        out_files[key] += '_RomF'
-    if SLAVICINFO:
-        out_files[key] += '_SlavT'+str(generationToIntroduceSlavic)
-    else:
-        out_files[key] += '_SlavF'
+
     out_files[key] += '_Epochs%s_HidNodes%s_Trial%s.txt' % (str(epochs), str(hiddenNodes), str(trial))
 
 # compute expected size
@@ -101,20 +90,20 @@ inputNodesSlav = (stem_length * phon_length) + human_length + slavic_length
 
 
 # Gender variables (unit vectors in three dimensions)
-[m, f, n] = map(tuple, numpy.identity(3, int))
+[m, f, n] = map(tuple, numpy.identity(gender_dimension, int))
 
 # Declension, Number and Case variables (unit vectors in 5 dimensions)
-[d1, d2, d3, d4, d5] = map(tuple, numpy.identity(5, int))
+[d1, d2, d3, d4, d5] = map(tuple, numpy.identity(declension_dimension, int))
 
 # Manually change cases to reflect semantics
-[nom, acc, gen] = map(tuple, numpy.identity(3, int))
+[nom, acc, gen] = map(tuple, numpy.identity(case_dimension, int))
 
 nom = (1, 0, 0)
 acc = (1, 1, 0)
 gen = (1, 1, 1)
 
 # Indicator of singular or plural (unit vectors in two dimensions)
-[sg, pl] = map(tuple, numpy.identity(2, int))
+[sg, pl] = map(tuple, numpy.identity(number_dimension, int))
 # @tyler why not just use one bit--0 or 1 ?
 
 

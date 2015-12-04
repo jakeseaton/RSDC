@@ -1,6 +1,7 @@
 import numpy
 import random
 from bisect import bisect
+from contsants import 
 
 
 def weighted_choice(choices):
