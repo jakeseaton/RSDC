@@ -8,7 +8,9 @@ import csv
 import constants
 import objects
 from smooth import smooth
-from read_input import read_corpus
+from objects import Case
+from objects import Token
+from constants import FILENAMETOCONVERT
 
 # Pybrain package dependencies
 from pybrain.tools.shortcuts import buildNetwork
@@ -23,8 +25,50 @@ counterBag = objects.CounterBag()
 # Dictionary to keep track of which words HAVE changed gender and in what generation
 genchange = defaultdict(list)
 
+def read_corpus(file1 = FILENAMETOCONVERT):
+        # aray of token objects
+        result = []
+
+        reader = open(file1, 'rU')
+
+        for row in reader.readlines():
+                # If this is the start of a new word
+                if row[0] == "_":
+
+                        # uncomment with new latin corpus
+                        row_arr = row.strip('\n').split("\t")[1:]
+
+                        row_dict = {constants.row_order[i]: value for i, value in enumerate(row_arr)}
+
+                        currentToken = Token(**row_dict)
+
+                        if row_dict['latinGender'][-1] == 'h':
+                                currentToken.human = True
+
+                        # only return a token if we have all necessary info.
+                        if currentToken.almostComplete():
+                                result.append(currentToken)
+                else:
+                        # only calculate cases if token is complete
+                        if currentToken.almostComplete():
+                                [s1, s2, s3, s4, s5, s6, case, suf, dem, adj] = row.split("\t")
+                                syllables = (s1, s2, s3, s4, s5, s6)
+                                currentToken.addCase(case, Case(currentToken, syllables, case, adj))
+        return result
+
 
 def conductGeneration(generation, corpus, previousOutput):
+        '''
+        Conducts a generation of learning and testing on the input data
+
+        inputs
+                generation (int) --- the number of the generation
+                corpus (array) --- the output of reading the corpus file
+                previousOutput (dict) --- the output of the previous generation
+        outputs
+
+        
+        '''
 
         print "Trial %s" % str(constants.trial)
         input_size = constants.inputNodes
@@ -70,21 +114,12 @@ def conductGeneration(generation, corpus, previousOutput):
         print "--------Generation: %s--------" % generation
         if generation >= constants.generationToDropGen:
                 print "Genitive Case Dropped"
-        if constants.generationToImplementMChange <= constants.generationsToImplement:
-                print "Romanian Sound Change To Be Implemented at generations:", str(constants.generationToImplementMChange), str(constants.generationToImplementAEChange), str(constants.generationToImplementSChange), str(constants.generationToImplementSecondChange)
-        if generation >= constants.generationToImplementMChange:
-                print "Final -m dropped"
-        if generation >= constants.generationToImplementAEChange:
-                print "Final -ae changed to -e"
-        if generation >= constants.generationToImplementSChange:
-                print "Final -s dropped"
-        if generation >= constants.generationToImplementSecondChange:
-                print "Final high vowels dropped"
+
         if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic:
                 print "Slavic Information Introduced"
+
         print "Number of Training Epochs: %s" % constants.epochs
         print "Number of Training Tokens: %s" % len(trainingSet)
-
         print "Training Error: %s" % error
 
         results = []
@@ -103,6 +138,7 @@ def conductGeneration(generation, corpus, previousOutput):
         }
         # for each work in the input
         for (word, inputTuple, expectedOutput, trueLatinGender, trueRomanianGender) in trainingCorpus.test:
+
                 # Count how many tokens are in the test set
                 counterBag.totalCounter.increment()                     
 
@@ -151,7 +187,7 @@ def conductGeneration(generation, corpus, previousOutput):
                         genchange[word.description].insert(0, True)
 
                 word.genchange[counterBag.generationCounter.value] = (constants.tup_to_gen[result[gen_b:gen_e]], constants.tup_to_dec[result[dec_b:dec_e]], constants.tup_to_case[result[case_b:case_e]], constants.tup_to_num[result[num_b:num_e]])
-                
+
                 # Total tokens
                 changes['total'] += 1                                                                                           
 
