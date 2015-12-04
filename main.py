@@ -3,12 +3,7 @@ import objects
 import read_input
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
-from pybrain.supervised.trainers import BackpropTrainer                 # For backpropagation training
-# import random
-# from pybrain.structure import FeedForwardNetwork                        # For feedforward network
-# from pybrain.structure import LinearLayer, SigmoidLayer                 # For the layers
-# from pybrain.structure import FullConnection            # For connections
-
+from pybrain.supervised.trainers import BackpropTrainer
 from read_input import convert_to_input
 from smooth import smooth
 from decimal import *
@@ -92,20 +87,6 @@ def conductGeneration(generation, corpus, previousOutput, counters):
         verbose = False
         if verbose:
                 pass
-        ##        print "Number of Tokens with Frequency Information: %s" % counters.freqCounter.value
-        ##        print "Number of Tokens with Slavic Information: %s" % counters.slavinfoCounter.value
-        ##        print "Number of Latin Male Tokens: %s" % counters.Latin_M.value
-        ##        print "Number of Latin Female Tokens: %s" % counters.Latin_F.value
-        ##        print "Number of Latin Neuter Tokens: %s" % counters.Latin_N.value
-        ##        print "Number of Romanian Male Tokens: %s" % counters.Romanian_M.value
-        ##        print "Number of Romanian Female Tokens: %s" % counters.Romanian_F.value
-        ##        print "Number of Romanian Neuter Tokens: %s" % counters.Romanian_N.value
-        ##        print "Number of Romanian Male + Singular Neuter Tokens: %s" % (counters.Romanian_M.value+counters.Romanian_NM.value)
-        ##        print "Number of Romanian Female + Plural Neuter Tokens: %s" % (counters.Romanian_F.value+counters.Romanian_NF.value)
-        ##        print "Number of Slavic Male Tokens: %s" % counters.Slavic_M.value
-        ##        print "Number of Slavic Female Tokens: %s" % counters.Slavic_F.value
-        ##        print "Number of Slavic Neuter Tokens: %s" % counters.Slavic_N.value
-
         print "Training Error: %s" % error
 
         results = []
@@ -135,8 +116,16 @@ def conductGeneration(generation, corpus, previousOutput, counters):
                 # Change index depending if gen has been dropped or not
                 (gen_b, gen_e, dec_b, dec_e, case_b, case_e, num_b, num_e) = (0, 3, 3, 8, 8, 11, 11, 13)
 
-                # YIKES
-                genchange[word.description].append((counterBag.generationCounter.value, constants.tup_to_gen[result[gen_b: gen_e]] + constants.tup_to_dec[result[dec_b:dec_e]] + constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]],word.parentToken.latinGender[0],word.parentToken.declension,word.case,word.num))
+                to_add = (
+                        counterBag.generationCounter.value,
+                        constants.tup_to_gen[result[gen_b: gen_e]] + constants.tup_to_dec[result[dec_b:dec_e]] + constants.tup_to_case[result[case_b:case_e]] + constants.tup_to_num[result[num_b:num_e]],
+                        word.parentToken.latinGender[0],
+                        word.parentToken.declension,
+                        word.case,
+                        word.num
+                )
+                
+                genchange[word.description].append(to_add)
 
                 if result == expectedOutput:                           
                         # Count how many tokens match gender in previous gen
@@ -183,18 +172,15 @@ generationOutput = []
 
 # iterate over tokens
 for token in data:
-                # iterate over cases
-                for (case, word) in token.cases:
-                        # first train on latin
-                        generationOutput.append((word.description, constants.outputs[word.parentToken.latinGender[0]]+constants.outputs[word.parentToken.declension]+constants.outputs[word.case]+constants.outputs[word.num]))
-                        word.genchange[0] = (word.parentToken.latinGender[0], constants.decnum_to_roman[word.parentToken.declension], word.case, word.num)
+        # iterate over cases
+        for (case, word) in token.cases:
+                # first train on latin
+                generationOutput.append((
+                        word.description, 
+                        constants.outputs[word.parentToken.latinGender[0]] + constants.outputs[word.parentToken.declension] + constants.outputs[word.case] + constants.outputs[word.num]
+                ))
+                word.genchange[0] = (word.parentToken.latinGender[0], constants.decnum_to_roman[word.parentToken.declension], word.case, word.num)
 
-##out.write('\n0\t')
-##for token in data:
-##              # iterate over cases
-##              for (case, word) in token.cases:
-##                        # Write the initial gender of each word to be tracked
-##                        out.write(word.parentToken.latinGender+'\t')
 
 # Set up table for tracking stats across generations
 info = open(constants.out_files['out2'], 'w')
@@ -235,59 +221,24 @@ info.write("Number of Slavic Female Tokens:\t%s\n" % str(counters.Slavic_F.value
 info.write("Number of Slavic Neuter Tokens:\t%s\n\n" % str(counters.Slavic_N.value))
 
 while counterBag.generationCounter.value <= constants.generationsToImplement:
-##        stats.write('\n'+str(constants.trial)+'\t'+str(counterBag.generationCounter.value)+'\t')
         generationOutput = conductGeneration(counterBag.generationCounter.value, data, generationOutput, counters)
         counterBag.generationCounter.increment()
 
-
-#### FOR MULTIPLE FILES WITH DIFFERENT STATS
-##stats1 = open(constants.out_files['out3'],'w')
-##stats2 = open(constants.out_files['out4'],'w')
-##stats3 = open(constants.out_files['out5'],'w')
-##stats4 = open(constants.out_files['out6'],'w')
-##
-##stats1.write('Trial\tDeclinedNoun')
-##stats2.write('Trial\tDeclinedNoun')
-##stats3.write('Trial\tDeclinedNoun')
-##stats4.write('Trial\tDeclinedNoun')
-
-## FOR ONE FILE WITH ALL STATS
+### Write output to stats
 stats = open(constants.out_files['out7'], 'w')
 stats.write('Declined Noun')
+
 for generation in range(0, constants.generationsToImplement+1):
         stats.write('\t'+str(generation))
-##        stats1.write('\t'+str(generation))
-##        stats2.write('\t'+str(generation))
-##        stats3.write('\t'+str(generation))
-##        stats4.write('\t'+str(generation))
 
 for word in data:
         for (case, token) in word.cases:
                 stats.write('\n'+token.description)
-##                stats1.write('\n'+str(constants.trial)+'\t'+token.description)
-##                stats2.write('\n'+str(constants.trial)+'\t'+token.description)
-##                stats3.write('\n'+str(constants.trial)+'\t'+token.description)
-##                stats4.write('\n'+str(constants.trial)+'\t'+token.description)
                 for generation in sorted(token.genchange.keys()):
                         (gen, dec, case, num) = token.genchange[generation]
                         stats.write('\t'+gen+','+dec+','+case+','+num)
-##                        stats1.write('\t'+gen)
-##                        stats2.write('\t'+dec)
-##                        stats3.write('\t'+case)
-##                        stats4.write('\t'+num)
-
 stats.close()
-##stats1.close()
-##stats2.close()
-##stats3.close()
-##stats4.close()
 
-# Now convert to csv
-##for i in range(3,7):
-##        csv_file = constants.out_files['out'+str(i)][:-3]+'csv'
-##        in_txt = csv.reader(open(constants.out_files['out'+str(i)], "rb"), delimiter = '\t')
-##        out_csv = csv.writer(open(csv_file, 'wb'))
-##        out_csv.writerows(in_txt)
 
 csv_file = constants.out_files['out7'][:-3]+'csv'
 in_txt = csv.reader(open(constants.out_files['out7'], "rb"), delimiter = '\t')

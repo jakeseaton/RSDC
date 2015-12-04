@@ -1,6 +1,7 @@
 import objects
 import constants
 
+
 def convert_to_input(file1):
         # aray of token objects
         result = []
