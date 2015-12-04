@@ -8,7 +8,7 @@ import csv
 import constants
 import objects
 from smooth import smooth
-from read_input import convert_to_input
+from read_input import read_corpus
 
 # Pybrain package dependencies
 from pybrain.tools.shortcuts import buildNetwork
@@ -24,15 +24,9 @@ counterBag = objects.CounterBag()
 genchange = defaultdict(list)
 
 
-def conductGeneration(generation, corpus, previousOutput, counters):
+def conductGeneration(generation, corpus, previousOutput):
+
         print "Trial %s" % str(constants.trial)
-
-        # Reset relevant counters
-        counterBag.resetForGeneration()
-
-        # convert to input (array of tokens)
-        (rawData, counters) = convert_to_input(constants.FILENAMETOCONVERT)
-
         input_size = constants.inputNodes
 
         # if we're using slavic data, modify the expected size of the input vector.
@@ -76,8 +70,6 @@ def conductGeneration(generation, corpus, previousOutput, counters):
         print "--------Generation: %s--------" % generation
         if generation >= constants.generationToDropGen:
                 print "Genitive Case Dropped"
-        if generation == constants.generationToDropGen:
-                counters.adjustGenCount()
         if constants.generationToImplementMChange <= constants.generationsToImplement:
                 print "Romanian Sound Change To Be Implemented at generations:", str(constants.generationToImplementMChange), str(constants.generationToImplementAEChange), str(constants.generationToImplementSChange), str(constants.generationToImplementSecondChange)
         if generation >= constants.generationToImplementMChange:
@@ -93,10 +85,6 @@ def conductGeneration(generation, corpus, previousOutput, counters):
         print "Number of Training Epochs: %s" % constants.epochs
         print "Number of Training Tokens: %s" % len(trainingSet)
 
-        print "Number of Tokens with Romanian Information: %s" % counters.rominfoCounter.value
-        verbose = False
-        if verbose:
-                pass
         print "Training Error: %s" % error
 
         results = []
@@ -149,7 +137,7 @@ def conductGeneration(generation, corpus, previousOutput, counters):
                         word.case,
                         word.num
                 )
-                
+
                 genchange[word.description].append(to_add)
 
                 if result == expectedOutput:                           
@@ -159,38 +147,68 @@ def conductGeneration(generation, corpus, previousOutput, counters):
                 if result == constants.outputs[trueLatinGender]:
                         # Count how many tokens match gender in Latin
                         counterBag.correctLatin.increment()
-##                        out.write(constants.constants.tup_to_gen[result]+'\t')
                 else:
                         genchange[word.description].insert(0, True)
-##                        word.changed = True
 
-################
-# New Counters #
-################
                 word.genchange[counterBag.generationCounter.value] = (constants.tup_to_gen[result[gen_b:gen_e]], constants.tup_to_dec[result[dec_b:dec_e]], constants.tup_to_case[result[case_b:case_e]], constants.tup_to_num[result[num_b:num_e]])
-                changes['total'] += 1                                                                                           # Total tokens
-                changes['gen_change']['LatinGen'+word.parentToken.latinGender[0]] += 1                                                           # Count total # of each Latin gender
-                changes['dec_change']['LatinDec'+word.parentToken.declension] += 1                                                           # Count total # of each Latin declension
-                changes['gencase_change']['LatinGenCase'+word.parentToken.latinGender[0]+word.case] += 1                                             # Count total # of gender+case
-                changes['gennum_change']['LatinGenNum'+word.parentToken.latinGender[0]+word.num] += 1                                               # Count total # of gender+number
-                changes['deccase_change']['LatinDecCase'+word.parentToken.declension+word.case] += 1                                              # Count total # of declension+case
-                changes['decnum_change']['LatinDecNum'+word.parentToken.declension+word.num] += 1                                                # Count total # of declension+number
-                changes['gencasenum_change']['LatinGenCaseNum'+word.parentToken.latinGender[0]+word.case+word.num] += 1                                 # Count total # of gender+case+number
-                changes['deccasenum_change']['LatinDecCaseNum'+word.parentToken.declension+word.case+word.num] += 1                                  # Count total # of declension+case+number
-                changes['gen_change'][constants.tup_to_gen[result[gen_b:gen_e]]+'from'+word.parentToken.latinGender[0]] += 1                                              # Check how stable genders stay
-                changes['dec_change'][constants.tup_to_dec[result[dec_b:dec_e]]+'from'+word.parentToken.declension] += 1                                               # Check how stable declensions stay
-                changes['gencase_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_case[result[case_b:case_e]]+'from'+word.parentToken.latinGender[0]+word.case] += 1          # Check how stable gender + case stays
-                changes['gennum_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.latinGender[0]+word.num] += 1           # Check how stable gender + number stays
-                changes['deccase_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_case[result[case_b:case_e]]+'from'+word.parentToken.declension+word.case] += 1           # Check how stable declension + case stays
-                changes['decnum_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.declension+word.num] += 1            # Check how stable declension + number stays
-                changes['gencasenum_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.latinGender[0]+word.case+word.num] += 1 # Check how stable gender + case + number stays
-                changes['deccasenum_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.declension+word.case+word.num] += 1 # Check how stable declension + case + number stays
+                
+                # Total tokens
+                changes['total'] += 1                                                                                           
+
+                # Count total # of each Latin gender
+                changes['gen_change']['LatinGen'+word.parentToken.latinGender[0]] += 1                                                           
+
+                # Count total # of each Latin declension
+                changes['dec_change']['LatinDec'+word.parentToken.declension] += 1                                                           
+
+                # Count total # of gender+case
+                changes['gencase_change']['LatinGenCase'+word.parentToken.latinGender[0]+word.case] += 1                                             
+
+                # Count total # of gender+number
+                changes['gennum_change']['LatinGenNum'+word.parentToken.latinGender[0]+word.num] += 1                                               
+
+                # Count total # of declension+case
+                changes['deccase_change']['LatinDecCase'+word.parentToken.declension+word.case] += 1                                              
+
+                # Count total # of declension+number
+                changes['decnum_change']['LatinDecNum'+word.parentToken.declension+word.num] += 1                                                
+
+                # Count total # of gender+case+number
+                changes['gencasenum_change']['LatinGenCaseNum'+word.parentToken.latinGender[0]+word.case+word.num] += 1                                 
+
+                # Count total # of declension+case+number
+                changes['deccasenum_change']['LatinDecCaseNum'+word.parentToken.declension+word.case+word.num] += 1                                  
+
+                # Check how stable genders stay
+                changes['gen_change'][constants.tup_to_gen[result[gen_b:gen_e]]+'from'+word.parentToken.latinGender[0]] += 1                                              
+
+                # Check how stable declensions stay
+                changes['dec_change'][constants.tup_to_dec[result[dec_b:dec_e]]+'from'+word.parentToken.declension] += 1                                               
+
+                # Check how stable gender + case stays
+                changes['gencase_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_case[result[case_b:case_e]]+'from'+word.parentToken.latinGender[0]+word.case] += 1          
+
+                # Check how stable gender + number stays
+                changes['gennum_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.latinGender[0]+word.num] += 1           
+
+                # Check how stable declension + case stays
+                changes['deccase_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_case[result[case_b:case_e]]+'from'+word.parentToken.declension+word.case] += 1           
+
+                # Check how stable declension + number stays
+                changes['decnum_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.declension+word.num] += 1            
+
+                # Check how stable gender + case + number stays
+                changes['gencasenum_change'][constants.tup_to_gen[result[gen_b:gen_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.latinGender[0]+word.case+word.num] += 1 
+
+                # Check how stable declension + case + number stays
+                changes['deccasenum_change'][constants.tup_to_dec[result[dec_b:dec_e]]+constants.tup_to_case[result[case_b:case_e]]+constants.tup_to_num[result[num_b:num_e]]+'from'+word.parentToken.declension+word.case+word.num] += 1 
+
         return results
 
 ## Main ##
 
 # Construct first data set
-(data, counters) = convert_to_input(constants.FILENAMETOCONVERT)
+data = read_corpus()
 
 generationOutput = []
 
@@ -205,51 +223,10 @@ for token in data:
                 ))
                 word.genchange[0] = (word.parentToken.latinGender[0], constants.decnum_to_roman[word.parentToken.declension], word.case, word.num)
 
-
-# Set up table for tracking stats across generations
-info = open(constants.out_files['out2'], 'w')
-info.write('Latin Gender System Change Simulation\n\n')
-
-if constants.generationToDropGen < constants.generationsToImplement:
-        info.write('Genitive Case dropped at generation\t%s\n' % str(constants.generationToDropGen))
-
-if constants.generationToImplementMChange < constants.generationsToImplement:
-        info.write('First Romanian Change (final m to zero) implemented at generation\t%s\n' % str(constants.generationToImplementMChange))
-        info.write('Second Romanian Change (final ae to e) implemented at generation\t%s\n' % str(constants.generationToImplementAEChange))
-        info.write('Third Romanian Change (final s to zero) implemented at generation\t%s\n' % str(constants.generationToImplementSChange))
-        info.write('Fourth Romanian Change (syncope of final high vowels) implemented at generation\t%s\n' % str(constants.generationToImplementSecondChange))
-else: 
-        info.write('No Romanian Change Implemented\n')
-
-if constants.SLAVICINFO:
-        info.write('Slavic Information Introduced at generation\t%s\n' % str(constants.generationToIntroduceSlavic))
-else: 
-        info.write('No Slavic Information Introduced\n')
-
-map(info.write, [
-        'Number of Epochs:\t%s\n' % str(constants.epochs),
-        'Number of Tokens in Total: \t%s\n' % str(counters.tokensCounter.value),
-        "Number of Tokens with Frequency Information:\t%s\n" % str(counters.freqCounter.value),
-        "Number of Tokens with Slavic Information:\t%s\n" % str(counters.slavinfoCounter.value),
-        "Number of Tokens with Romanian Information:\t%s\n" % str(counters.rominfoCounter.value),
-        "Number of Tokens with All Information:\t%s\n" % str(counters.rominfoCounter.value),
-        "Number of Latin Male Tokens:\t%s\n" % str(counters.Latin_M.value),
-        "Number of Latin Female Tokens:\t%s\n" % str(counters.Latin_F.value),
-        "Number of Latin Neuter Tokens:\t%s\n" % str(counters.Latin_N.value),
-        "Number of Romanian Male Tokens:\t%s\n" % str(counters.Romanian_M.value),
-        "Number of Romanian Female Tokens:\t%s\n" % str(counters.Romanian_F.value),
-        "Number of Romanian Neuter Tokens:\t%s\n" % str(counters.Romanian_N.value),
-        "Number of Romanian Male + Singular Neuter Tokens:\t%s\n" % str(counters.Romanian_M.value+counters.Romanian_NM.value),
-        "Number of Romanian Female + Plural Neuter Tokens:\t%s\n" % str(counters.Romanian_F.value+counters.Romanian_NF.value),
-        "Number of Slavic Male Tokens:\t%s\n" % str(counters.Slavic_M.value),
-        "Number of Slavic Female Tokens:\t%s\n" % str(counters.Slavic_F.value),
-        "Number of Slavic Neuter Tokens:\t%s\n\n" % str(counters.Slavic_N.value)
-])
-
 # For each generation to conduct
 while counterBag.generationCounter.value <= constants.generationsToImplement:
         # Conduct the generation
-        generationOutput = conductGeneration(counterBag.generationCounter.value, data, generationOutput, counters)
+        generationOutput = conductGeneration(counterBag.generationCounter.value, data, generationOutput)
         # Increment the counter
         counterBag.generationCounter.increment()
 

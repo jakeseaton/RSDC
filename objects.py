@@ -57,7 +57,7 @@ class Token:
                                 counters.Romanian_NM.increment()
                         elif case[-2:] == 'pl': 
                                 counters.Romanian_NF.increment()
-        
+
         if self.slavicGender != '?':
             counters.slavinfoCounter.increment()
             cmd = 'counters.Slavic_%s.increment()' % self.slavicGender[0].capitalize()

@@ -1,21 +1,17 @@
 import objects
 import constants
+from constants import FILENAMETOCONVERT
 
 
-def convert_to_input(file1):
+def read_corpus(file1 = FILENAMETOCONVERT):
         # aray of token objects
         result = []
-
-        #initialize bag of counters
-        counters = objects.CounterBag()
 
         reader = open(file1, 'rU')
 
         for row in reader.readlines():
                 # If this is the start of a new word
                 if row[0] == "_":
-                        # increment counters
-                        counters.tokensCounter.increment()
 
                         # uncomment with new latin corpus
                         row_arr = row.strip('\n').split("\t")[1:]
@@ -39,12 +35,5 @@ def convert_to_input(file1):
                                 # initialize case
                                 currentCase = objects.Case(currentToken, syllables, case, adj)
 ##                              # set syllables
-
-##                              currentCase.setSyllables(generation, s1, s2, s3, s4, s5, s6)
-                                # add to current token
-##                              print (currentCase.modWord, currentCase.word)
                                 currentToken.addCase(case, currentCase)
-
-                                # moved all of this functionality to the Token object
-                                currentToken.updateCounters(case, counters)
-        return (result, counters)
+        return result
