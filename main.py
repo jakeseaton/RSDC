@@ -1,16 +1,21 @@
-import constants
-import objects
-import read_input
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.datasets import SupervisedDataSet
-from pybrain.supervised.trainers import BackpropTrainer
-from read_input import convert_to_input
-from smooth import smooth
+# Standard Library Imports
 from decimal import *
 from collections import defaultdict
 import time
 import csv
 
+# Our files
+import constants
+import objects
+from smooth import smooth
+from read_input import convert_to_input
+
+# Pybrain package dependencies
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.datasets import SupervisedDataSet
+from pybrain.supervised.trainers import BackpropTrainer
+
+# track time from start to finish
 start = time.time()
 
 counterBag = objects.CounterBag()
@@ -21,30 +26,35 @@ genchange = defaultdict(list)
 
 def conductGeneration(generation, corpus, previousOutput, counters):
         print "Trial %s" % str(constants.trial)
+
         # Reset relevant counters
         counterBag.resetForGeneration()
 
         # convert to input (array of tokens)
-        (rawData, counters) = read_input.convert_to_input(constants.FILENAMETOCONVERT)
+        (rawData, counters) = convert_to_input(constants.FILENAMETOCONVERT)
 
-        # if we should include slavic data
-        if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic:
-                # build the right size net
-                net = buildNetwork(constants.inputNodesSlav, constants.hiddenNodes, constants.outputNodes)
-                emptyTrainingSet = SupervisedDataSet(constants.inputNodesSlav, constants.outputNodes)
-        else: 
-                net = buildNetwork(constants.inputNodes, constants.hiddenNodes, constants.outputNodes)
-                emptyTrainingSet = SupervisedDataSet(constants.inputNodes, constants.outputNodes)
+        input_size = constants.inputNodes
+
+        # if we're using slavic data, modify the expected size of the input vector.
+        if constants.includeSlavic and generation >= constants.generationToIntroduceSlavic: 
+                input_size = constants.inputNodesSlav       
+
+        # build the right size network
+        net = buildNetwork(input_size, constants.hiddenNodes, constants.outputNodes)
+
+        # build the right size training set
+        emptyTrainingSet = SupervisedDataSet(input_size, constants.outputNodes)
 
         # initialize corpus object
         trainingCorpus = objects.Corpus(emptyTrainingSet)
 
-        # iterate through tokens
+        # iterate through tokens passed to the function
         for token in corpus:
+
                 # iterate through cases
                 for (case, word) in token.cases:
+                        # set its syllables, based on the generation (i.e. account for sound changes)
                         word.setSyllables(generation, word.syllables)
-
                         # extract the gender from the previous generation
                         (placeholder, previousResult) = previousOutput[[wordinfo for (wordinfo, gender) in previousOutput].index(word.description)]                                
                         # print placeholder # we already know the word
@@ -103,22 +113,37 @@ def conductGeneration(generation, corpus, previousOutput, counters):
                 'gencasenum_change': defaultdict(lambda: 0),
                 'deccasenum_change': defaultdict(lambda: 0)
         }
-
+        # for each work in the input
         for (word, inputTuple, expectedOutput, trueLatinGender, trueRomanianGender) in trainingCorpus.test:
-                counterBag.totalCounter.increment()                     # Count how many tokens are in the test set
+                # Count how many tokens are in the test set
+                counterBag.totalCounter.increment()                     
+
+                # determine if we should drop the genetive
                 should_drop_gen = generation >= constants.generationToDropGen
+
+                # activate the net, and smooth the output
                 result = smooth(tuple(net.activate(inputTuple)), gendrop=should_drop_gen)  
 
+                # append output tuple to result
                 results.append((word.description, result))
+
+                # If this is the first generation
                 if counterBag.generationCounter.value == 1:
+                        # add
                         genchange[word.description].append((0, word.parentToken.latinGender[0]))
 
                 # Change index depending if gen has been dropped or not
                 (gen_b, gen_e, dec_b, dec_e, case_b, case_e, num_b, num_e) = (0, 3, 3, 8, 8, 11, 11, 13)
 
+                # hash the output tuple to get the result
+                gender = constants.tup_to_gen[result[gen_b: gen_e]]
+                declension = constants.tup_to_dec[result[dec_b:dec_e]]
+                case = constants.tup_to_case[result[case_b:case_e]]
+                num = constants.tup_to_num[result[num_b:num_e]]
+
                 to_add = (
                         counterBag.generationCounter.value,
-                        constants.tup_to_gen[result[gen_b: gen_e]] + constants.tup_to_dec[result[dec_b:dec_e]] + constants.tup_to_case[result[case_b:case_e]] + constants.tup_to_num[result[num_b:num_e]],
+                        gender + declension + case + num,
                         word.parentToken.latinGender[0],
                         word.parentToken.declension,
                         word.case,
@@ -142,7 +167,6 @@ def conductGeneration(generation, corpus, previousOutput, counters):
 ################
 # New Counters #
 ################
-
                 word.genchange[counterBag.generationCounter.value] = (constants.tup_to_gen[result[gen_b:gen_e]], constants.tup_to_dec[result[dec_b:dec_e]], constants.tup_to_case[result[case_b:case_e]], constants.tup_to_num[result[num_b:num_e]])
                 changes['total'] += 1                                                                                           # Total tokens
                 changes['gen_change']['LatinGen'+word.parentToken.latinGender[0]] += 1                                                           # Count total # of each Latin gender
@@ -202,26 +226,31 @@ if constants.SLAVICINFO:
 else: 
         info.write('No Slavic Information Introduced\n')
 
-info.write('Number of Epochs:\t%s\n' % str(constants.epochs))
-info.write('Number of Tokens in Total: \t%s\n' % str(counters.tokensCounter.value))
-info.write("Number of Tokens with Frequency Information:\t%s\n" % str(counters.freqCounter.value))
-info.write("Number of Tokens with Slavic Information:\t%s\n" % str(counters.slavinfoCounter.value))
-info.write("Number of Tokens with Romanian Information:\t%s\n" % str(counters.rominfoCounter.value))
-info.write("Number of Tokens with All Information:\t%s\n" % str(counters.rominfoCounter.value))
-info.write("Number of Latin Male Tokens:\t%s\n" % str(counters.Latin_M.value))
-info.write("Number of Latin Female Tokens:\t%s\n" % str(counters.Latin_F.value))
-info.write("Number of Latin Neuter Tokens:\t%s\n" % str(counters.Latin_N.value))
-info.write("Number of Romanian Male Tokens:\t%s\n" % str(counters.Romanian_M.value))
-info.write("Number of Romanian Female Tokens:\t%s\n" % str(counters.Romanian_F.value))
-info.write("Number of Romanian Neuter Tokens:\t%s\n" % str(counters.Romanian_N.value))
-info.write("Number of Romanian Male + Singular Neuter Tokens:\t%s\n" % str(counters.Romanian_M.value+counters.Romanian_NM.value))
-info.write("Number of Romanian Female + Plural Neuter Tokens:\t%s\n" % str(counters.Romanian_F.value+counters.Romanian_NF.value))
-info.write("Number of Slavic Male Tokens:\t%s\n" % str(counters.Slavic_M.value))
-info.write("Number of Slavic Female Tokens:\t%s\n" % str(counters.Slavic_F.value))
-info.write("Number of Slavic Neuter Tokens:\t%s\n\n" % str(counters.Slavic_N.value))
+map(info.write, [
+        'Number of Epochs:\t%s\n' % str(constants.epochs),
+        'Number of Tokens in Total: \t%s\n' % str(counters.tokensCounter.value),
+        "Number of Tokens with Frequency Information:\t%s\n" % str(counters.freqCounter.value),
+        "Number of Tokens with Slavic Information:\t%s\n" % str(counters.slavinfoCounter.value),
+        "Number of Tokens with Romanian Information:\t%s\n" % str(counters.rominfoCounter.value),
+        "Number of Tokens with All Information:\t%s\n" % str(counters.rominfoCounter.value),
+        "Number of Latin Male Tokens:\t%s\n" % str(counters.Latin_M.value),
+        "Number of Latin Female Tokens:\t%s\n" % str(counters.Latin_F.value),
+        "Number of Latin Neuter Tokens:\t%s\n" % str(counters.Latin_N.value),
+        "Number of Romanian Male Tokens:\t%s\n" % str(counters.Romanian_M.value),
+        "Number of Romanian Female Tokens:\t%s\n" % str(counters.Romanian_F.value),
+        "Number of Romanian Neuter Tokens:\t%s\n" % str(counters.Romanian_N.value),
+        "Number of Romanian Male + Singular Neuter Tokens:\t%s\n" % str(counters.Romanian_M.value+counters.Romanian_NM.value),
+        "Number of Romanian Female + Plural Neuter Tokens:\t%s\n" % str(counters.Romanian_F.value+counters.Romanian_NF.value),
+        "Number of Slavic Male Tokens:\t%s\n" % str(counters.Slavic_M.value),
+        "Number of Slavic Female Tokens:\t%s\n" % str(counters.Slavic_F.value),
+        "Number of Slavic Neuter Tokens:\t%s\n\n" % str(counters.Slavic_N.value)
+])
 
+# For each generation to conduct
 while counterBag.generationCounter.value <= constants.generationsToImplement:
+        # Conduct the generation
         generationOutput = conductGeneration(counterBag.generationCounter.value, data, generationOutput, counters)
+        # Increment the counter
         counterBag.generationCounter.increment()
 
 ### Write output to stats
@@ -235,16 +264,15 @@ for word in data:
         for (case, token) in word.cases:
                 stats.write('\n'+token.description)
                 for generation in sorted(token.genchange.keys()):
-                        (gen, dec, case, num) = token.genchange[generation]
-                        stats.write('\t'+gen+','+dec+','+case+','+num)
+                        stats.write('\t' + ",".join(token.genchange[generation])) 
 stats.close()
 
 
-csv_file = constants.out_files['out7'][:-3]+'csv'
+csv_file = constants.out_files['out7'][:-3] + 'csv'
 in_txt = csv.reader(open(constants.out_files['out7'], "rb"), delimiter = '\t')
 out_csv = csv.writer(open(csv_file, 'wb'))
 out_csv.writerows(in_txt)
 
+# End time it
 end = time.time()
-
 print end - start
