@@ -1,0 +1,190 @@
+\documentclass[landscape]{article}
+
+\usepackage{tikz}							% To draw
+\usetikzlibrary{shapes,snakes,fit, calc}			% Tikz shapes, calculation
+\usepackage{bold-extra}						% For bold + sc
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\tikzstyle{block} = [draw, rectangle, text width=8.5cm, rounded corners, minimum width = 0.75cm, minimum height = 0.75cm]
+\tikzstyle{dot} = [draw, circle, minimum size=.5cm, node distance=1.75cm]
+
+\begin{tikzpicture}[remember picture, overlay, transform shape,
+roundnode/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=10mm},
+squarenode/.style={rectangle, draw=red!60, fill=red!5, very thick, minimum size=5mm},
+realnode/.style={circle, draw=blue!60, fill=blue!5, very thick, minimum size=7mm},
+hiddennode/.style={circle, draw=black!60, fill=black!5, very thick, minimum size=7mm},
+]
+	\node[anchor=north west, inner sep = 5pt, xshift=0cm, yshift=0cm] at (current page.north west){
+	\begin{tikzpicture}[every node/.append style = {anchor=center}]
+	\begin{scope}
+
+	% PHONOLOGY
+	\node[squarenode]						(kanis) 		 {\LARGE/kanis/ `dog'};
+	
+	\node[squarenode] at ($(kanis)+(-3.4,-1.3)$)		(phon)		{\LARGE Phonology};
+	\node[squarenode] at ($(phon)+(8,0)$)		(human)		{\LARGE Semantics};	
+	
+	\node[roundnode] at ($(phon)+(-3.5,-1.3)$)		(k)			{\LARGE k};
+	\node[roundnode] at ($(k)+(4,0)$)			(a)			{\LARGE a};
+	\node[roundnode] at ($(a)+(3.2,0)$)			(phonetc)		{...};
+	
+	\node[roundnode] at ($(human)+(0,-1.7)$)		(-human)		{\large $[$-human$]$};
+	
+	\node[roundnode] at ($(k)+(-2.5,-1.7)$)		(voice)		{\large$[$-vd$]$};
+	\node[roundnode] at ($(voice)+(1.5,0)$)		(cont)		{\large$[$+C$]$};
+	\node[roundnode] at ($(cont)+(1.5,0)$)		(featetc)		{...};	
+	
+	\node[roundnode] at ($(featetc)+(2,0)$)		(voice2)		{\large$[$+vd$]$};	
+	\node[roundnode] at ($(voice2)+(1.5,0)$)		(cont2)		{\large$[$-C$]$};	
+	\node[roundnode] at ($(cont2)+(1.5,0)$)		(feat2etc)		{...};	
+	
+	\node[roundnode] at ($(phonetc)+(0,-1.3)$)		(feat3etc)		{...};	
+		
+	\node[realnode] at ($(voice)+(0,-1.5)$)			(vdnode)		{-1};
+	\node[realnode] at ($(cont)+(0,-1.5)$)			(contnode)	{1};
+	\node[realnode] at ($(featetc)+(0,-1.5)$)		(featnode)		{...};
+
+	\node[realnode] at ($(voice2)+(0,-1.5)$)		(vd2node)		{1};
+	\node[realnode] at ($(cont2)+(0,-1.5)$)			(cont2node)	{-1};
+	\node[realnode] at ($(feat2etc)+(0,-1.5)$)		(feat2node)	{...};
+
+	\node[realnode] at ($(feat3etc)+(0,-1.5)$)		(feat3node)	{...};
+	
+	\node[realnode] at ($(feat3node)+(1.2,0)$)	(hum1)		{0};
+	\node[realnode] at ($(hum1)+(0.9,0)$)		(hum2)		{0};
+	\node[realnode] at ($(hum2)+(0.9,0)$)		(hum3)		{0};
+	\node[realnode] at ($(hum3)+(0.9,0)$)		(hum4)		{0};
+	\node[realnode] at ($(hum4)+(0.9,0)$)		(hum5)		{0};
+	\node[realnode] at ($(hum5)+(0.9,0)$)		(hum6)		{0};
+	\node[realnode] at ($(hum6)+(0.9,0)$)		(hum7)		{0};
+	\node[realnode] at ($(hum7)+(0.9,0)$)		(hum8)		{0};
+	
+	% HIDDEN LAYER
+	\node[hiddennode] at ($(vd2node)+(-2,-2)$)	(h1)			{?};
+	\node[hiddennode] at ($(h1)+(2,0)$)			(h2)			{?};
+	\node[hiddennode] at ($(h2)+(2,0)$)			(h3)			{?};
+	\node[hiddennode] at ($(h3)+(2,0)$)			(h4)			{?};
+	\node[hiddennode] at ($(h4)+(2,0)$)			(h5)			{?};
+	\node[hiddennode] at ($(h5)+(2,0)$)			(h6)			{...};
+	
+	% OUTPUT LAYER
+	\node[realnode] at ($(vdnode)+(0,-4)$)		(gen1)		{1};
+	\node[realnode] at ($(gen1)+(1,0)$)			(gen2)		{0};
+	\node[realnode] at ($(gen2)+(1,0)$)			(gen3)		{0};
+	
+	\node[realnode] at ($(gen3)+(2,0)$)			(dec1)		{0};
+	\node[realnode] at ($(dec1)+(1,0)$)			(dec2)		{0};
+	\node[realnode] at ($(dec2)+(1,0)$)			(dec3)		{1};
+	\node[realnode] at ($(dec3)+(1,0)$)			(dec4)		{0};
+	\node[realnode] at ($(dec4)+(1,0)$)			(dec5)		{0};
+
+	\node[realnode] at ($(dec5)+(2,0)$)			(case1)		{1};
+	\node[realnode] at ($(case1)+(1,0)$)			(case2)		{0};
+	\node[realnode] at ($(case2)+(1,0)$)			(case3)		{0};
+	
+	\node[realnode] at ($(case3)+(2,0)$)			(num1)		{1};
+	\node[realnode] at ($(num1)+(1,0)$)			(num2)		{0};
+	
+	\node[roundnode] at ($(gen2)+(0,-1.5)$)		(m)			{\LARGE \textsc{M}};
+	\node[roundnode] at ($(dec3)+(0,-1.5)$)		(III)			{\LARGE \textsc{III}};	
+	\node[roundnode] at ($(case2)+(0,-1.5)$)		(nom)		{\LARGE \textsc{nom}};
+	\node[roundnode] at ($(num1)+(0.5,-1.5)$)		(sg)			{\LARGE \textsc{sg}};
+		
+	\node[squarenode] at ($(m)+(0,-1.3)$)			(gen)			{\LARGE Gender};
+	\node[squarenode] at ($(III)+(0,-1.3)$)			(dec)			{\LARGE Declension};
+	\node[squarenode] at ($(nom)+(0,-1.3)$)		(case)		{\LARGE Case};
+	\node[squarenode] at ($(sg)+(0,-1.3)$)			(num)		{\LARGE Number};
+	
+	% Connection lines
+	\draw[->] (kanis) to (phon.north);
+	\draw[->] (kanis) to (human.north);
+	
+	\draw[->] (phon) to (k.north);
+	\draw[->] (phon) to (a.north);
+	\draw[->] (phon) to (phonetc.north);	
+	\draw[->] (human) to (-human);
+	
+	\draw[->] (k.south) to (voice.north);
+	\draw[->] (k.south) to (cont.north);
+	\draw[->] (k.south) to (featetc.north);
+	\draw[->] (a.south) to (voice2.north);
+	\draw[->] (a.south) to (cont2.north);
+	\draw[->] (a.south) to (feat2etc.north);
+	\draw[->] (phonetc) to (feat3etc);
+	
+	\draw[->] (voice) to (vdnode);
+	\draw[->] (cont) to (contnode);
+	\draw[->] (featetc) to (featnode);
+
+	\draw[->] (voice2) to (vd2node);
+	\draw[->] (cont2) to (cont2node);
+	\draw[->] (feat2etc) to (feat2node);
+	
+	\draw[->] (feat3etc) to (feat3node);
+	
+	\foreach \x in {1,...,8} {
+		\draw[->] (-human.south) to (hum\x.north);
+	}
+
+%	\draw (vdnode.south) -> (h1.north);
+	
+	\foreach \x in {1,...,6} {
+		\draw (vdnode.south) -> (h\x.north);
+		\draw (contnode.south)  ->(h\x.north);
+		\draw (featnode.south)  ->(h\x.north);
+		\draw (vd2node.south)  ->(h\x.north);
+		\draw (cont2node.south)  ->(h\x.north);
+		\draw (feat2node.south)  ->(h\x.north);
+		\draw (feat3node.south)  ->(h\x.north);
+		
+		\foreach \y in {1,...,8} {
+			\draw (hum\y.south)  ->(h\x.north);
+		}
+	}
+
+	\foreach \x in {1,...,6} {
+		\foreach \y in {1,...,3} {
+			\draw (h\x.south) -> (gen\y.north);
+			\draw (h\x.south) -> (case\y.north);
+			\draw (gen\y.south) -> (m.north);
+			\draw (case\y.south) -> (nom.north);
+			}
+		\foreach \y in {1,...,5} {
+			\draw (h\x.south) -> (dec\y.north);
+			\draw (dec\y.south) -> (III.north);
+			}
+		\foreach \y in {1,2} {
+			\draw (h\x.south) -> (num\y.north);
+			\draw (num\y.south) -> (sg.north);
+			}
+		}
+	
+	\draw[->] (m) to (gen);
+	\draw[->] (III) to (dec);
+	\draw[->] (nom) to (case);
+	\draw[->] (sg) to (num);
+	
+	\node[squarenode] at ($(dec)+(2,-1.3)$) (next) {\Huge Next Generation};
+	
+	\draw (gen) to (next);
+	\draw (dec) to (next);
+	\draw (case) to (next);
+	\draw (num) to (next);
+	
+	\node[draw, block, align=left] at ($(kanis)+(12.8,0)$)	(pre-input)		{\Large\textbf{Input Layer:} 454 Latin Vulgate nouns};
+	\node[draw, block, align=left] at ($(pre-input)+(0,-2.5)$) (phonology)	{\Large
+\textbf{Phonology (396 nodes = 6$\times$6$\times$11):}\\ Each word maximally \textbf{6 syllables} \\ Each syllable maximally \textbf{6 phonemes} (CCVVCC) \\ Each phoneme coded for \textbf{11 features} \\ 6 $\times$ 6 $\times$ 11};
+	\node[draw, block, align=left] at ($(phonology)+(0,-3.2)$) (semantics)	{\Large\textbf{Semantics (8 nodes):}\\ Human males activate initial 4 nodes\\ Human females activate final 4 nodes \\ Non-humans activate no nodes};
+	\node[draw, block, align=left] at ($(semantics)+(0, -2.8)$) (hidden) {\Large \textbf{Hidden Layer (30 nodes):}\\ During training, hidden nodes use info from input and output to adjust connection weights. Hidden layer is the learner (Goldsmith \& O'Brien 1995) };
+	\node[draw, block, align=left] at ($(hidden)+(0, -4.6)$) (output) {\Large\textbf{Output Layer (13 nodes):} \\ Model had two parameters: \\
+	1) Case hierarchy? If yes $\rightarrow$ \textsc{acc} (1,1,0) equidistant between \textsc{nom} (1,0,0) and \textsc{gen} (1,1,1) \\ 2) Genitive drop? If yes $\rightarrow$ \textsc{gen} node becomes unavailable output. \\ Output set of features given as expected output for following generation};
+		
+	\end{scope}
+	\end{tikzpicture}
+	};
+\end{tikzpicture}
+
+\end{document}

@@ -1,6 +1,7 @@
 import numpy
 import random
 from bisect import bisect
+from contsants import 
 
 
 def weighted_choice(choices):
@@ -56,20 +57,16 @@ def smooth(p, gendrop=False, equalcase=False):
     nums = {dist(numbers, number_space[i]): number_space[i] for i in range(number_dimension)}
 
     if not equalcase:
-        # Handle edge case
-        dist_nom = dist(case, (1, 0, 0))
-        ##    dist_gen = dist(p[8:11],(0,1,0))
-        ##    dist_acc = dist(p[8:11],(0,0,1))
-        dist_acc = dist(case, (1, 1, 0))
-        dist_gen = dist(case, (1, 1, 1))
+        case_vectors = [
+            # nom
+            (1, 0, 0),
+            # acc
+            (1, 1, 0),
+            # gen
+            (1, 1, 1)
+        ]
 
-        cases = {
-            dist_nom: (1, 0, 0),
-            ##        dist_gen : (0,1,0),
-            ##        dist_acc : (0,0,1)
-            dist_acc: (1, 1, 0),
-            dist_gen: (1, 1, 1)
-        }
+        cases = {dist(case): tup for tup in case_vectors}
     else:
         cases = {dist(case, case_space[i]): case_space[i] for i in range(case_dimension)}
 

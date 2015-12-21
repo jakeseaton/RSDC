@@ -1,78 +1,131 @@
-SLAVICINFO = False                                      # This variable tells us whether to introduce Slavic information or not
+import numpy
+
+### GLOBAL VARIABLES ###
+
+# The ordering of data in the input. Will then be set of properties of Token objects
+row_order = [
+    "word", 
+    "latinGender", 
+    "maxFrequency", 
+    "max10k", 
+    "logMax", 
+    "slavicGender", 
+    "romanianGender", 
+    "declension"
+]
+
+
+# This variable tells us whether to introduce Slavic information or not
+SLAVICINFO = False
 includeSlavic = SLAVICINFO
+
+
 FILENAMETOCONVERT = "latin_corpus.txt"
 declension_file = "declensions.txt"
-generationsToImplement = 15                            # 48 to show time between 400AD and 1600AD (25 years to a generation)
-generationToImplementMChange = 31                       # 2 to show early loss
-generationToImplementSChange = 31                       # 6 to show between 2nd and 3rd century (dropped 2nd-3rd century)
-generationToImplementAEChange = 31                      # 8 to show latter part of 300AD (standard in latter part of 2nd century and before 4th)
-generationToImplementSecondChange = 31                  # 15 to show halfway point (idealized)
-generationToIntroduceSlavic = 18                        # 18 (--> 34) to show Slavs coming in approximately 850AD
-generationToDropGen = 8                                 # Drop at 8 (3rd century AD)
-epochs = 3                                              # EzraPolinsky uses 3, HareEllman uses 10
-hiddenNodes = 30                                        # EzraPolinsky uses 30, HareEllman uses 10 for the first layer
-hiddenNodes2 = 8                                        # HareEllman uses 8 for the second layer
-outputNodes = 13                                        # Gender (3), Declension (5), Case (3), Number (2)
-trial = 16                                               # Trial number
+
+# 48 to show time between 400AD and 1600AD (25 years to a generation)
+generationsToImplement = 15                            
+
+# 18 (--> 34) to show Slavs coming in approximately 850AD
+generationToIntroduceSlavic = 18                        
+
+# Drop at 8 (3rd century AD)
+generationToDropGen = 8                                 
+
+# EzraPolinsky uses 3, HareEllman uses 10
+epochs = 3                                             
+
+# EzraPolinsky uses 30, HareEllman uses 10 for the first layer
+hiddenNodes = 30                                        
+
+# HareEllman uses 8 for the second layer
+hiddenNodes2 = 8                                        
+
+# Gender (3), Declension (5), Case (3), Number (2)
+gender_dimension = 3
+declension_dimension = 5
+case_dimension = 3
+number_dimension = 2
+
+outputNodes = sum([gender_dimension, declension_dimension, case_dimension, number_dimension])                                        
+
+# Trial number
+trial = 16                                               
 
 
-out_files = {'out1':'trackchange_Gens'+str(generationsToImplement),
-             'out2':'info_Gens'+str(generationsToImplement),
-             'out3':'genstats_Gens'+str(generationsToImplement),
-             'out4':'decstats_Gens'+str(generationsToImplement),
-             'out5':'casestats_Gens'+str(generationsToImplement),
-             'out6':'numstats_Gens'+str(generationsToImplement),
-             'out7':'stats_Gens'+str(generationsToImplement)}
+out_files = [
+    'trackchange_Gens',
+    'info_Gens',
+    'genstats_Gens',
+    'decstats_Gens',
+    'casestats_Gens',
+    'numstats_Gens',
+    'stats_Gens'
+]
 
-for i in range(1,len(out_files.keys())+1):
+out_files = {'out' + str(i + 1): name + str(generationsToImplement) for i, name in enumerate(out_files)}
+
+for key in out_files.keys():
+
     if generationToDropGen <= generationsToImplement:
-        out_files['out'+str(i)] += '_GnvT'+str(generationToDropGen)
+        out_files[key] += '_GnvT'+str(generationToDropGen)
     else:
-        out_files['out'+str(i)] += '_GnvF'
-    if generationToImplementMChange <= generationsToImplement:
-        out_files['out'+str(i)] += '_RomT'+str(generationToImplementMChange)+'_'+str(generationToImplementSChange)+'_'+str(generationToImplementAEChange)+'_'+str(generationToImplementSecondChange)
-    else:
-        out_files['out'+str(i)] += '_RomF'
-    if SLAVICINFO:
-        out_files['out'+str(i)] += '_SlavT'+str(generationToIntroduceSlavic)
-    else:
-        out_files['out'+str(i)] += '_SlavF'
-    out_files['out'+str(i)] += '_Epochs%s_HidNodes%s_Trial%s.txt' % (str(epochs), str(hiddenNodes), str(trial))
+        out_files[key] += '_GnvF'
+
+    out_files[key] += '_Epochs%s_HidNodes%s_Trial%s.txt' % (str(epochs), str(hiddenNodes), str(trial))
 
 # compute expected size
-stem_length = 36                                # 6 syllables with 6 potential phonemes each
+
+# 6 syllables with 6 potential phonemes each
+stem_length = 36                                
 phon_length = 11
+
+# determine the length of the section of the input that includes this information
 human_length = 8
 slavic_length = 12
 
-# Gender variables
-m = (1, 0, 0)
-f = (0, 1, 0)
-n = (0, 0, 1)
+# determine the length of the input
+inputNodes = (stem_length * phon_length) + human_length
+inputNodesSlav = (stem_length * phon_length) + human_length + slavic_length
 
-# Declension, Number and Case variables
-d1 = (1, 0, 0, 0, 0)
-d2 = (0, 1, 0, 0, 0)
-d3 = (0, 0, 1, 0, 0)
-d4 = (0, 0, 0, 1, 0)
-d5 = (0, 0, 0, 0, 1)
+
+# Gender variables (unit vectors in three dimensions)
+[m, f, n] = map(tuple, numpy.identity(gender_dimension, int))
+
+# Declension, Number and Case variables (unit vectors in 5 dimensions)
+[d1, d2, d3, d4, d5] = map(tuple, numpy.identity(declension_dimension, int))
+
+# Manually change cases to reflect semantics
+[nom, acc, gen] = map(tuple, numpy.identity(case_dimension, int))
 
 nom = (1, 0, 0)
 acc = (1, 1, 0)
 gen = (1, 1, 1)
-##gen = (0,1,0)
-##acc = (0,0,1)
 
-sg = (1, 0)
-pl = (0, 1)
+# Indicator of singular or plural (unit vectors in two dimensions)
+[sg, pl] = map(tuple, numpy.identity(number_dimension, int))
+# @tyler why not just use one bit--0 or 1 ?
 
-# Map tuples back to genders
-tup_to_gen = {
-    (1, 0, 0): 'm',
-    (0, 1, 0): 'f',
-    (0, 0, 1): 'n'
+
+def invert(d):
+    '''
+    Invert a dictionary
+    '''
+    return dict((value, key) for key, value in d.iteritems())
+
+# Map genders to tuples
+genders = {
+    'm': m,
+    'f': f,
+    'n': n
 }
 
+# Map tuples back to genders
+tup_to_gen = invert(genders)
+
+decnum_to_declension = {str(key): eval('d' + str(key)) for key in range(1, 6)} 
+
+# map numbers to roman
 decnum_to_roman = {
     '1': 'I',
     '2': 'II',
@@ -81,77 +134,70 @@ decnum_to_roman = {
     '5': 'V'
 }
 
+# Map roman numerals to declensions
+declensions = {value: decnum_to_declension[key] for key, value in decnum_to_roman.iteritems()}
+
 # Map tuples back to declensions
-tup_to_dec = {
-    (1, 0, 0, 0, 0): 'I',
-    (0, 1, 0, 0, 0): 'II',
-    (0, 0, 1, 0, 0): 'III',
-    (0, 0, 0, 1, 0): 'IV',
-    (0, 0, 0, 0, 1): 'V'
+tup_to_dec = invert(declensions)
+
+# map tuples back to non-roman numbers
+tup_to_decnum = {invert(decnum_to_roman)[key]: value for key, value in declensions.iteritems()}
+
+# Map case to tuples
+cases = {
+    'nom': nom,
+    'acc': acc,
+    'gen': gen
 }
 
 # Map tuples back to case
-tup_to_case = {
-    (1, 0, 0): 'nom',
-    ##        (0,1,0):'gen',
-    ##        (0,0,1):'acc',
-    (1, 1, 0): 'acc',
-    (1, 1, 1): 'gen'
-}
+tup_to_case = invert(cases)
 
 # Map tuples back to number
-tup_to_num = {
-    (1, 0): 'sg',
-    (0, 1): 'pl',
+num = {
+    'sg': sg,
+    'pl': pl
 }
 
-inputNodes = (stem_length * phon_length) + human_length
-inputNodesSlav = (stem_length * phon_length) + human_length + slavic_length
+# map number back to tuple
+tup_to_num = invert(num)
 
 
 # Human dictionary for assigning input values
 input_human = {
-    "mh": (1, 1, 1, 1, 0, 0, 0, 0),
-    "fh": (0, 0, 0, 0, 1, 1, 1, 1),
-    "m": (0, 0, 0, 0, 0, 0, 0, 0),
-    "f": (0, 0, 0, 0, 0, 0, 0, 0),
-    "n": (0, 0, 0, 0, 0, 0, 0, 0)
+    "mh": (1,) * (human_length / 2) + (0,) * (human_length / 2),
+    "fh": (0,) * (human_length / 2) + (1,) * (human_length / 2),
+    "m": (0,) * human_length,
+    "f": (0,) * human_length,
+    "n": (0,) * human_length
 }
+
+# pre-build usefule tuples
+slavic_1 = (1,) * (slavic_length / 3)
+slavic_0 = (0,) * (slavic_length / 3)
 
 # Gender dictionary for assigning Slavic values
 input_slavic = {
-    "m": (1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-    "f": (0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0),
-    "n": (0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1)
+    "m": slavic_1 + slavic_0 * 2,
+    "f": slavic_0 + slavic_1 + slavic_0,
+    "n": slavic_0 * 2 + slavic_1
 }
 
-# Gender dictionary for predicting outcome values
+# Dictionary for predicting outcome values
 outputs = {
-    # Genders
-    "m": (1, 0, 0),                            
-    "mh": (1, 0, 0),
-    "f": (0, 1, 0),
-    "fh": (0, 1, 0),
-    "n": (0, 0, 1),                            
-
-    # Declensions
-    "1": (1, 0, 0, 0, 0),                        
-    "2": (0, 1, 0, 0, 0),
-    "3": (0, 0, 1, 0, 0),
-    "4": (0, 0, 0, 1, 0), 
-    "5": (0, 0, 0, 0, 1), 
-
-    # Case
-    "nom": (1, 0, 0),                           
-    ##        "gen":(0, 1, 0), 
-    ##        "acc":(0, 0, 1), 
-    "acc": (1, 1, 0), 
-    "gen": (1, 1, 1), 
-
-    # Number
-    "sg": (1, 0),                              
-    "pl": (0, 1)
+    # Instead of justadding the gender dictionary, we modify them here 
+    "m": m,                            
+    "mh": m,
+    "f": f,
+    "fh": f,
+    # @ TYLER IS THIS RIGHT?
+    "n": n,
 }
+
+# Insert the rest of the computed dictionaries
+outputs.update(cases)
+outputs.update(decnum_to_declension)
+outputs.update(num)                            
 
 # Adjust frequencies depending on case and human/nonhuman
 
@@ -164,6 +210,7 @@ human_case_freq = {
     "gensg": 2, 
     "genpl": 1 
 }
+
 nhuman_case_freq = {
     "nomsg": 4,
     "nompl": 2,
@@ -181,7 +228,7 @@ corpus = {}
 # frequencies contains every word mapped to its frequency
 frequencies = {}
 
-# Dictonary of phonemes to chomsky values
+# Map phonemes to Jakobson, Fant, Halle values (1952)
 phonemes = {
     "p": (-0.9, 0.9, -0.9, -0.9, -0.9, -0.9, 0.9, -0.9, 0.9, -0.9, 0.9),
     "t": (-0.9, 0.9, -0.9, -0.9, -0.9, -0.9, 0.9, -0.9, -0.9, -0.9, 0.9),
@@ -206,44 +253,53 @@ phonemes = {
     "o": (0.9, -0.9, 0.9, 0.9, -0.9, -0.9, -0.9, 0.9, 0.9, 0.9, -0.9),  # (cot)
     "a": (0.9, -0.9, 0.9, 0.9, -0.9, -0.9, -0.9, 0.9, 0.9, -0.9, 0.9),  # (card)
     "*": (0.9, -0.9, 0.9, 0.9, -0.9, -0.9, 0.9, -0.9, 0.9, -0.9, -0.9),     # (about)
-    "-": (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    "-": (0,) * 11
 }
+
+
+def print_phons_pretty(*args):
+    # lookup
+    result = [phonemes[arg] for arg in args]
+
+    # flatten
+    return tuple([item for vector in result for item in vector])
 
 
 # turn a syllable into its phonemic representation
 # takes a six tuple
 def print_phons((a, b, c, d, e, f)):
+    return print_phons_pretty(a, b, c, d, e, f)
     return(phonemes[a] + phonemes[b] + phonemes[c] + phonemes[d] + phonemes[e] + phonemes[f])
 
 
-def manipulateForMSoundChange(s1, s2, s3, s4, s5, s6):
+def manipulateForMSoundChange(*args):
+    last_syllable = args[-1]
+    next_to_last_syllable = args[-2]
+
+    def change(s):
+        if s[-1] is "m":
+            s = s[:-1] + "-"
+        return s
+
     # truncates the final letter
     # if no final syllable
-    if s6 == "------":
-        # check for end of m or s
-        if s5[5] is "m":
-            s5 = s5[0:5] + "-"
-    # else
+    if last_syllable is "------":
+        args[-2] = change(next_to_last_syllable)
     else:
-        # check for end of m or s
-        if s6[5] is "m":
-            s6 = s6[0:5] + "-"
-    return s1, s2, s3, s4, s5, s6
+        args[-1] = change(last_syllable)
+    return tuple(args)
 
 
-def manipulateForSSoundChange(s1, s2, s3, s4, s5, s6):
-    # truncates the final letter
-    # if no final syllable
-    if s6 == "------":
-        # check for end of m or s
-        if s5[5] == "s":
-            s5 = s5[0:5] + "-"
-    # else
+def manipulateForSSoundChange(*args):
+    def change(s):
+        if s[-1] == "s":
+            s = s[:-1] + "-"
+
+    if args[-1] is "------":
+        args[-2] = change(args[-2])
     else:
-        # check for end of m or s
-        if s6[5] == "s":
-            s6 = s6[0:5] + "-"
-    return s1, s2, s3, s4, s5, s6
+        args[-1] = change(args[-1])
+    return tuple(args)
 
 
 def manipulateForAESoundChange(s1, s2, s3, s4, s5, s6):
@@ -263,12 +319,11 @@ def manipulateForSecondSoundChange(s1, s2, s3, s4, s5, s6):
 def findFinalVowel(syllable):
     syllableArray = list(syllable)
     syllableArray.reverse()
-    for i in range(len(syllableArray)):
-        if syllableArray[i] != "-":
-            if syllableArray[i] == "u" or syllableArray[i] == "i":
-                syllableArray[i] = "-"
-            syllableArray.reverse()
-            return "".join(syllableArray)
+    for i, character in enumerate(syllableArray):
+        if character != '-':
+            if character == 'u' or character == 'i':
+                syllableArray[i] = '-'
+                break
     syllableArray.reverse()
     return "".join(syllableArray)
 
@@ -281,7 +336,6 @@ def findFinalVowel2(syllable):
             if syllableArray[i] == "i":
                 if syllableArray[i+1] == "a":
                     syllableArray[i:i+2] = "ee"
-            syllableArray.reverse()
-            return "".join(syllableArray)
+                    break
     syllableArray.reverse()
     return "".join(syllableArray)
