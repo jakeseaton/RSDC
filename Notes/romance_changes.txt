@@ -1,0 +1,107 @@
+Fate of Words:
+
+Declension IV: basically all went to M or rarely N
+Declension V: goes to F only ~20% of the time, M rest of the time, almost 100% III
+Declension I:
+	F: The ones that went to F less than 90% of the time (went to M) were ALL gen.pl
+Declension II:
+	M: Ones that went to F more than 10% of time:
+		agnus: often goes to F (unclear why)
+		vesper, nom.sg: often goes to F (maybe because of final r? matches with III?)
+	N: Ones that went to F more than 10% of the time are ALL plurals
+	   Ones that stayed N often
+		arma: nomsg, gensg, accsg: 100%
+		deserta: "" 100%
+		intestina: "" 100%
+		milia: "" 100%
+		secretum: "" 100%
+		vota: "" 100%
+		vulgus: "" 100%
+	   genpl goes to III ~65% of the time
+Declension III:
+	M: Ones that went to F more than 10% of the time:
+		IS class:
+			canum = canis, gen.pl (F 46%, I 38%) --> shares "a" and "um" syllables with "aarum"
+			rest of canis forms are went to F ~15% of the time
+			cinis: ~10% of the time (same as canis?)
+			collis: accsg, nompl, accpl (F ~20%), nomsg and gensg 12%
+			finis: accsg, nompl, accpl (F ~20%), nomsg 12%
+			funis: accsg, nompl, accpl (F ~20%), nomsg, gensg, genpl (F~10%)
+			hostis: accsg, nompl, accpl (F ~20%), nomsg, gensg (~10%)
+			ignis: "" (F ~20%), nomsg, gensg (~10%)
+			lapis: nomsg, gensg, nompl, genpl (10%)
+			orbis: accsg, nompl, accpl ~20%, nomsg, gensg 14%
+			panis: gen.pl (54%, 42% I), accsg (24%), other forms ~15%
+			piscis: accsg, nompl, accpl 20%, nomsg, gensg 12%
+			pulvis: all ~10%		
+			sanguis: except accsg and genpl, rest around 10%
+			semis: all ~10%			
+			unguis: accsg, nompl, accpl ~20%, rest ~5%
+			vectis: accsg, nompl, accpl ~20% nomsg, gensg 12%
+			vermis: "" ~20%, nomsg, gensg 12%
+
+			ES subclass?
+				hospes: nomsg 22%, gensg/nompl/accpl ~10%
+				limes: nomsg 18%, gensg 8%
+				paries: nomsg 20%, rest 10%
+				pes: nomsg 20%, rest ~10%
+		R class: ~10% of nomsg to F
+			clangor
+			crater (~18%), 10% of other forms
+			debitor
+			dolor
+			frater (~15%) of all forms, genpl is 30% and goes to I)
+			furor
+			labor
+			languor
+			lector
+			odor
+			orator (16% of nomsg)
+			passer
+			pastor
+			pater 15% of all forms, genpl is 30% and goes to I 16%
+			pauper nomsg 15%, rest ~10%
+			percussor nomsg 14%
+			piscator
+			praeceptor
+			sanctor
+			NOT senior, sudor, turtur —> turtur most likely to go to N (14%)
+			venter
+			victor
+		NS class:
+			dens: nomsg, accsg, nompl, accpl (~20-25%) to F, 10% to I
+			fons: nomsg (30%), accsg (25%), nompl, accpl (20%), 20% to I
+			mons: nomsg (30%), accsg (24%), nompl, accpl (20%); 16% nomsg to I
+			occidens: nomsg (18%), gensg/nompl/genpl/accpl (10-15%)
+			oriens: nomsg (20%), rest 10%
+			pons: nomsg 30%, accsg 24%, nompl, accpl 20%, 18% nomsg to I
+			providens: nomsg 18%, genpl 15%, rest ~10%
+
+			S subclass?
+				princeps nomsg 18%, gensg 10%
+				but NOT ros or sacerdos (os different from es)
+		N class?
+			pecten: nomsg 20%, rest 5-10%
+			pepon: gensg 10%
+			parens: nomsg (20%), rest 10% (genpl 14%)
+		X class:
+			grex: nomsg (18%), other forms ~10%
+			pulex: nomsg 20%, others ~10%
+			ramex: nomsg 18%, other forms ~10%, genpl 15%
+			rex: nomsg 20%, rest ~10%
+			sorex: nomsg 20%, gensg, nompl, accpl 10%, others ~5%
+			NOT DUX
+	N: 	Most go to F ~10-15% of time
+		More than 15%:
+			N class:
+				flumen: nomsg, accsg 24%
+				lumen: nomsg, accsg 20%
+				nomen: nomsg, accsg 24%
+				semen: nomsg, accsg 22%
+			lac: nomsg, accsg 100%; gensg 22%; genpl 48%; nompl, accpl 66% (most go to I)
+			mare: nomsg, accsg 20%
+			vas: nomsg, accsg 100%; gensg 30%; genpl 70%; nompl, accpl 76% (most go to I)
+		Ones ending in -us NOMSG and ACCSG go to II mostly, otherwise stay mostly III
+	F:	OX goes to F but UX does not (nux, lux) probably because of u-s
+		rete: nomsg, accsg 20%
+		mel: nomsg, accsg 18%
